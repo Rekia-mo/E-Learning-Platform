@@ -2,28 +2,30 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Post', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      title:{
+      title: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      content:{
+      content: {
         type: Sequelize.TEXT,
         allowNull: false,
       },
-      user_id:{
+      user_id: {
         type: Sequelize.UUID,
-        allowNull:false,
-        references:{
+        allowNull: false,
+        references: {
           model: 'User',
           key: 'id'
-        }
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
       },
       createdAt: {
         allowNull: false,
@@ -33,11 +35,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
-     });
-     await queryInterface.addIndex('Post', ['user_id']);
+    });
+    await queryInterface.addIndex('Post', ['user_id']);
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Post');
   }
 };

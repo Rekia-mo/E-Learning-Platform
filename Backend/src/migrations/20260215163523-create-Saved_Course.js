@@ -15,7 +15,9 @@ module.exports = {
         references: {
           model: 'Course',
           key: 'id'
-        }
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
       },
       user_id: {
         type: Sequelize.UUID,
@@ -23,7 +25,9 @@ module.exports = {
         references: {
           model: 'User',
           key: 'id'
-        }
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
       },
       createdAt: {
         allowNull: false,

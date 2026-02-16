@@ -19,7 +19,9 @@ module.exports = {
         references: {
           model: 'User',
           key: 'id'
-        }
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
       },
       post_id: {
         type: Sequelize.UUID,
@@ -27,7 +29,9 @@ module.exports = {
         references: {
           model: 'Post',
           key: 'id'
-        }
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
       },
       createdAt: {
         allowNull: false,

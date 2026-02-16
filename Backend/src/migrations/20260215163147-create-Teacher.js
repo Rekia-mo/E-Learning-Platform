@@ -9,26 +9,28 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      isPsychologist:{
+      isPsychologist: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
-      cv_URL:{
+      cv_URL: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      status:{
+      status: {
         type: Sequelize.ENUM('pending', 'approved', 'rejected'),
         defaultValue: 'pending',
       },
-      user_id:{
+      user_id: {
         type: Sequelize.UUID,
-        allowNull:false,
+        allowNull: false,
         unique: true,
-        references:{
+        references: {
           model: 'User',
           key: 'id'
-        }
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
       },
       createdAt: {
         allowNull: false,

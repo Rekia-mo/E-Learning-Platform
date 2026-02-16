@@ -35,7 +35,9 @@ module.exports = {
         references: {
           model: 'Teacher',
           key: 'id'
-        }
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
       },
       categorie_id: {
         type: Sequelize.UUID,
@@ -43,7 +45,9 @@ module.exports = {
         references: {
           model: 'Categorie',
           key: 'id'
-        }
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
       },
       createdAt: {
         allowNull: false,
@@ -55,7 +59,7 @@ module.exports = {
       }
     });
     await queryInterface.addIndex('Course', ['teacher_id']);
-    await queryInterface.addIndex('Course', ['categorie_id']);  
+    await queryInterface.addIndex('Course', ['categorie_id']);
   },
 
   async down(queryInterface, Sequelize) {
