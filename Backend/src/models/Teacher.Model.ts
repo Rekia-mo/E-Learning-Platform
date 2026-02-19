@@ -1,26 +1,26 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../config/db.js";
+import { sequelize } from "../config/db";
 
 // 1️⃣ Interface des attributs du model
 interface TeacherAttributes {
   id: string;
-  userId: string;
+  user_id: string;
   isPsychologist: boolean;
-  cvUrl?: string | null;
+  cv_URL?: string | null;
   status: "pending" | "approved" | "rejected";
 }
 
 // 2️⃣ Interface des attributs optionnels à la création
-interface TeacherCreationAttributes extends Optional<TeacherAttributes, "id" | "isPsychologist" | "cvUrl" | "status"> {}
+interface TeacherCreationAttributes extends Optional<TeacherAttributes, "id" | "isPsychologist" | "cv_URL" | "status"> {}
 
 // 3️⃣ Classe Model
 class Teacher extends Model<TeacherAttributes, TeacherCreationAttributes>
   implements TeacherAttributes {
 
   public id!: string;
-  public userId!: string;
+  public user_id!: string;
   public isPsychologist!: boolean;
-  public cvUrl?: string | null;
+  public cv_URL?: string | null;
   public status!: "pending" | "approved" | "rejected";
 
   // timestamps
@@ -36,7 +36,7 @@ Teacher.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true
     },
-    userId: {
+    user_id: {
       type: DataTypes.UUID,
       allowNull: false
     },
@@ -44,7 +44,7 @@ Teacher.init(
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
-    cvUrl: {
+    cv_URL: {
       type: DataTypes.STRING,
       allowNull: true
     },
@@ -56,7 +56,9 @@ Teacher.init(
   },
   {
     sequelize,
-    modelName: "Teacher"
+    modelName: "Teacher",
+    tableName: "Teacher",
+    freezeTableName: true,
   }
 );
 

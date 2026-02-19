@@ -1,5 +1,5 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../config/db.js";
+import { sequelize } from "../config/db";
 
 // 1️⃣ Interface des attributs du model
 interface PostCommentAttributes {
@@ -49,7 +49,9 @@ Post_Comment.init(
   },
   {
     sequelize,
-    modelName: "Post_Comment"
+    modelName: "Post_Comment",
+    tableName: "Post_Comment",
+    freezeTableName: true,
   }
 );
 

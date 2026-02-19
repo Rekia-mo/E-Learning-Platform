@@ -33,7 +33,7 @@ module.exports = {
           model: 'Role',
           key: 'id'
         },
-        onDelete: "SET NULL",
+        onDelete: "CASCADE",
         onUpdate: "CASCADE"
       },
       createdAt: {

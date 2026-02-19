@@ -1,10 +1,10 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../config/db.js";
+import { sequelize } from "../config/db";
 
 // 1️⃣ Interface des attributs du model
 interface PostAttributes {
   id: string;
-  userId: string;
+  user_id: string;
   title: string;
   content: string;
 }
@@ -17,7 +17,7 @@ class Post extends Model<PostAttributes, PostCreationAttributes>
   implements PostAttributes {
 
   public id!: string;
-  public userId!: string;
+  public user_id!: string;
   public title!: string;
   public content!: string;
 
@@ -34,7 +34,7 @@ Post.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true
     },
-    userId: {
+    user_id: {
       type: DataTypes.UUID,
       allowNull: false
     },
@@ -49,7 +49,9 @@ Post.init(
   },
   {
     sequelize,
-    modelName: "Post"
+    modelName: "Post",
+    tableName: "Post",
+    freezeTableName: true,
   }
 );
 

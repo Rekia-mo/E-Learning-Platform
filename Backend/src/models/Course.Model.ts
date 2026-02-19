@@ -1,5 +1,5 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../config/db.js";
+import { sequelize } from "../config/db";
 
 // 1️⃣ Interface des attributs du model
 interface CourseAttributes {
@@ -56,7 +56,7 @@ Course.init(
     },
     image_url: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     isSpecialized: {
       type: DataTypes.BOOLEAN,
@@ -73,7 +73,9 @@ Course.init(
   },
   {
     sequelize,
-    modelName: "Course"
+    modelName: "Course",
+    tableName: "Course",
+    freezeTableName: true,
   }
 );
 

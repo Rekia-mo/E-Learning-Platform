@@ -15,7 +15,7 @@ module.exports = {
       },
       cv_URL: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       status: {
         type: Sequelize.ENUM('pending', 'approved', 'rejected'),

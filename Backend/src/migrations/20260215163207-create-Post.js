@@ -27,6 +27,14 @@ module.exports = {
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
       },
+      likes: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
+      },
+      isSpecialized: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

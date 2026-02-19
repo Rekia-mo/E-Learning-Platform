@@ -1,5 +1,5 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../config/db.js";
+import { sequelize } from "../config/db";
 
 // 1️⃣ Interface des attributs du model
 interface UserAttributes {
@@ -7,7 +7,7 @@ interface UserAttributes {
   name: string;
   email: string;
   password: string;
-  roleId: string;
+  role_id: string;
   isSick: boolean;
 }
 
@@ -22,7 +22,7 @@ class User extends Model<UserAttributes, UserCreationAttributes>
   public name!: string;
   public email!: string;
   public password!: string;
-  public roleId!: string;
+  public role_id!: string;
   public isSick!: boolean;
 
   // timestamps
@@ -54,7 +54,7 @@ User.init(
       type: DataTypes.STRING,
       allowNull: false
     },
-    roleId: {
+    role_id: {
       type: DataTypes.UUID,
       allowNull: false
     },
@@ -65,7 +65,9 @@ User.init(
   },
   {
     sequelize,
-    modelName: "User"
+    modelName: "User",
+    tableName: "User",
+    freezeTableName: true,
   }
 );
 

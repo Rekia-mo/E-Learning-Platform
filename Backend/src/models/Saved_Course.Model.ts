@@ -1,6 +1,6 @@
 
 import { DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../config/db.js";
+import { sequelize } from "../config/db";
 
 // 1️⃣ Interface des attributs du model
 interface SavedCourseAttributes {
@@ -45,6 +45,8 @@ Saved_Course.init(
   {
     sequelize,
     modelName: "Saved_Course",
+    tableName: "Saved_Course",
+    freezeTableName: true,
     indexes: [
       {
         unique: true,

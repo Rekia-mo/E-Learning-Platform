@@ -1,5 +1,5 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../config/db.js";
+import { sequelize } from "../config/db";
 
 // 1️⃣ Interface des attributs du model
 interface CategorieAttributes {
@@ -8,7 +8,7 @@ interface CategorieAttributes {
 }
 
 // 2️⃣ Interface des attributs optionnels à la création
-interface CategorieCreationAttributes extends Optional<CategorieAttributes, "id"> {}
+interface CategorieCreationAttributes extends Optional<CategorieAttributes, "id"> { }
 
 // 3️⃣ Classe Model
 class Categorie extends Model<CategorieAttributes, CategorieCreationAttributes>
@@ -37,7 +37,9 @@ Categorie.init(
   },
   {
     sequelize,
-    modelName: "Categorie"
+    modelName: "Categorie",
+    tableName: "Categorie", 
+    freezeTableName: true,
   }
 );
 

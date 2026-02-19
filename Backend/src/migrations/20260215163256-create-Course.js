@@ -23,7 +23,7 @@ module.exports = {
       },
       image_url: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       isSpecialized: {
         type: Sequelize.BOOLEAN,
@@ -48,6 +48,10 @@ module.exports = {
         },
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
+      },
+      likes:{
+        type: Sequelize.INTEGER,
+        defaultValue: 0
       },
       createdAt: {
         allowNull: false,
