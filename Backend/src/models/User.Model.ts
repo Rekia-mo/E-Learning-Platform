@@ -1,5 +1,8 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/db";
+import jwt from "jsonwebtoken";
+
+
 
 // 1️⃣ Interface des attributs du model
 interface UserAttributes {
@@ -12,7 +15,7 @@ interface UserAttributes {
 }
 
 // 2️⃣ Interface des attributs optionnels à la création
-interface UserCreationAttributes extends Optional<UserAttributes, "id" | "isSick"> {}
+interface UserCreationAttributes extends Optional<UserAttributes, "id" | "isSick"> { }
 
 // 3️⃣ Classe Model
 class User extends Model<UserAttributes, UserCreationAttributes>
@@ -28,6 +31,20 @@ class User extends Model<UserAttributes, UserCreationAttributes>
   // timestamps
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
+
+  public generateAuthToken(roleName : string): string {
+    if (!process.env.JWT_SECRET_KEY) {
+      throw new Error("JWT_SECRET_KEY is not defined");
+    }
+    return jwt.sign(
+      {
+        id: this.id,
+        role: roleName
+      },
+      process.env.JWT_SECRET_KEY as string,
+      { expiresIn: "7d" }
+    );
+  }
 }
 
 // 4️⃣ Init du model
