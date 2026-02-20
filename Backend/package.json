@@ -20,7 +20,8 @@
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.17.0",
     "sequelize": "^6.37.7",
-    "sequelize-cli": "^6.6.5"
+    "sequelize-cli": "^6.6.5",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
