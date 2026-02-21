@@ -1,12 +1,9 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/db";
 import jwt from "jsonwebtoken";
-<<<<<<< HEAD
 import z from "zod";
-
-=======
 import { Role } from "./index"; // importer le modèle Role pour  l'utiliser dans la méthode generateAuthToken
->>>>>>> 604b8b5354eeda1accdee6b1cf0de70262a470fb
+
 
 // 1️⃣ Interface des attributs du model
 interface UserAttributes {
