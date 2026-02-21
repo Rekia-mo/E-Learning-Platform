@@ -1,13 +1,20 @@
 import express from "express";
 import cors from "cors";
+<<<<<<< HEAD
 import {sequelize} from "./config/db";
 import userRoutes from "./routes/user.route";
+=======
+import authRoutes from "./routes/auth.route";
+import { sequelize } from "./config/db";
+>>>>>>> 604b8b5354eeda1accdee6b1cf0de70262a470fb
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use("/api/auth", authRoutes);
 
+<<<<<<< HEAD
 app.use("/api/auth",userRoutes);
 
 
@@ -28,3 +35,13 @@ async function startServer() {
 }
 
 startServer();
+=======
+sequelize
+  .authenticate()
+  .then(() => console.log("connected to db ..."))
+  .catch((err) => console.log("DB ERR: ", err));
+
+app.listen(3000, () => {
+  console.log("listening to port 3000...");
+});
+>>>>>>> 604b8b5354eeda1accdee6b1cf0de70262a470fb
