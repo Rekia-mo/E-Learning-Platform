@@ -10,6 +10,8 @@ app.use(express.json());
 
 app.use("/api/auth",userRoutes);
 
+
+
 async function startServer() {
   try {
     await sequelize.authenticate();
