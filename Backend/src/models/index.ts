@@ -1,20 +1,20 @@
-import User from "./User.Model.js";
-import Role from "./Role.Model.js";
-import Teacher from "./Teacher.Model.js";
-import Post from "./Post.Model.js";
-import Course from "./Course.Model.js";
-import Category from "./Categorie.Model.js";
-import CourseComment from "./Course_Comment.Model.js";
-import PostComment from "./Post_Comment.Model.js";
-import Saved_Course from "./Saved_Course.Model.js";
-import Enrollment from "./Enrollment.Model.js";
-import Lesson from "./Lesson.Model.js";
+import User from "./User.Model";
+import Role from "./Role.Model";
+import Teacher from "./Teacher.Model";
+import Post from "./Post.Model";
+import Course from "./Course.Model";
+import Category from "./Categorie.Model";
+import CourseComment from "./Course_Comment.Model";
+import PostComment from "./Post_Comment.Model";
+import Saved_Course from "./Saved_Course.Model";
+import Enrollment from "./Enrollment.Model";
+import Lesson from "./Lesson.Model";
 
 // 🔗 Associations
 
 // Role - User (1 → N)
-Role.hasMany(User, { foreignKey: "roleId" });
-User.belongsTo(Role, { foreignKey: "roleId" });
+Role.hasMany(User, { foreignKey: "role_id" });
+User.belongsTo(Role, { foreignKey: "role_id" });
 
 // User - Teacher (1 → N)
 User.hasMany(Teacher, { foreignKey: "userId" });

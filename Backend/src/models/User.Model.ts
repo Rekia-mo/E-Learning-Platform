@@ -1,7 +1,7 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/db";
 import jwt from "jsonwebtoken";
-
+import z from "zod";
 
 
 // 1️⃣ Interface des attributs du model
@@ -87,5 +87,15 @@ User.init(
     freezeTableName: true,
   }
 );
+
+
+//USER VALIDATION SCHEMA
+export const createUserSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email format"),
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters"),
+});
 
 export default User;
