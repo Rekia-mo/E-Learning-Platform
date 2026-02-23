@@ -13,7 +13,8 @@ export const login = async (req: Request, res: Response) => {
 
   try {
     // Cherche l'utilisateur par email
-    const user = await User.findOne({ where: { email }, include: [Role] });
+    const user = await User.findOne({ where: { email }, include: [Role] }); // Ça dit à Sequelize :  "Quand tu récupères le user, récupère aussi son rôle associé."
+
     if (!user) return res.status(401).json({ message: "User not found" });
 
     // Vérifie le mot de passe:
