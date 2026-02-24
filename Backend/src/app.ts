@@ -1,22 +1,10 @@
 import express from "express";
-import cors from "cors"; // Gérer les requêtes cross-origin
-import { sequelize } from "./config/db";
-import authRoutes from "./routes/auth.route";
-import userRoutes from "./routes/user.route";
-import { errorHandler } from "./middlewares/ErrorHandling";
+import {sequelize} from "./config/db";
+import { setupRoutes } from "./setup/routes";
 
 const app = express();
 
-// Middlewares globaux
-app.use(cors());
-app.use(express.json());
-
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-
-// Middleware de gestion des erreurs (toujours après les routes)
-app.use(errorHandler);
+setupRoutes(app);
 
 // Démarrage du serveur après connexion à la base de données
 async function startServer() {
