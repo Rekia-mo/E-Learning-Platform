@@ -1,16 +1,10 @@
 import express from "express";
-import cors from "cors";
 import {sequelize} from "./config/db";
-import userRoutes from "./routes/user.route";
-import authRoutes from "./routes/auth.route";
+import { setupRoutes } from "./setup/routes";
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
-app.use("/api/auth", authRoutes);
-
-app.use("/api/auth",userRoutes);
+setupRoutes(app);
 
 async function startServer() {
   try {
