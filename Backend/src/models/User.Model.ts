@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 import z from "zod";
 import { Role } from "./index"; // importer le modèle Role pour  l'utiliser dans la méthode generateAuthToken
 
-
 // 1️⃣ Interface des attributs du model
 interface UserAttributes {
   id: string;
@@ -38,6 +37,7 @@ class User
   public readonly updatedAt!: Date;
 
   public generateAuthToken(roleName: string): string {
+    //Elle peut accéder à toutes les propriétés de l’objet user courant(une condition qu il soit deja existe  dans la base) via this. parceque c’est une méthode d’instance du modèle User. Donc, this.id fait référence à l’id de l’utilisateur pour lequel on génère le token, et roleName est passé en argument pour inclure le nom du rôle dans le payload du token.
     if (!process.env.JWT_SECRET_KEY) {
       throw new Error("JWT_SECRET_KEY is not defined");
     }
@@ -93,14 +93,11 @@ User.init(
   },
 );
 
-
 //USER VALIDATION SCHEMA
 export const createUserSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email format"),
-  password: z
-    .string()
-    .min(6, "Password must be at least 6 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 export default User;

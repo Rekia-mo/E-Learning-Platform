@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { ZodObject, ZodRawShape, ZodError } from "zod";
+import { ZodObject, ZodRawShape, ZodError } from "zod"; //Zod = bibliothèque pour définir des schémas et valider les données
 
 export const validate = (schema: ZodObject<ZodRawShape>) => (req: Request, res: Response, next: NextFunction) => {
   try {
