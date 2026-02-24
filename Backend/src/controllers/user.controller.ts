@@ -2,7 +2,6 @@ import { Role, User } from "../models/index";
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 
-
 interface createUserBody {
   name: string;
   email: string;
@@ -11,7 +10,10 @@ interface createUserBody {
   isSick: boolean;
 }
 
-export const createUser = async (req: Request<{}, {}, createUserBody>, res: Response) => {
+export const createUser = async (
+  req: Request<{}, {}, createUserBody>,
+  res: Response,
+) => {
   try {
     const existingUser = await User.findOne({
       where: {
@@ -28,8 +30,8 @@ export const createUser = async (req: Request<{}, {}, createUserBody>, res: Resp
     //SET DEFAULT ROLE AS STUDENT 
     const defaultRole = await Role.findOne({
       where: {
-        name: "Student"
-      }
+        name: "Student",
+      },
     });
     if (!defaultRole) return res.status(500).json({ message: "Default role not configured" });
 
@@ -47,11 +49,10 @@ export const createUser = async (req: Request<{}, {}, createUserBody>, res: Resp
 
     res.json({
       success: true,
-      token: token
+      token: token,
     });
-
-  } catch (err : any) {
+  } catch (err: any) {
     console.log(err);
     return res.status(500).json({ err: err.message });
   }
-}
+};
