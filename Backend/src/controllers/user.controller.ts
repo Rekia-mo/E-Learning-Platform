@@ -7,6 +7,7 @@ interface createUserBody {
   email: string;
   password: string;
   role_id: string;
+  isSick: boolean;
 }
 
 export const createUser = async (
@@ -16,33 +17,34 @@ export const createUser = async (
   try {
     const existingUser = await User.findOne({
       where: {
-        email: req.body.email,
-      },
-    });
+        email: req.body.email
+      }
+    })
+    //VEREFY EXISTNS OF USER 
+    if (existingUser) return res.status(400).json({ message: "User already exists" });
 
-    if (existingUser)
-      return res.status(400).json({ message: "User already exists" });
-
+    //HACH PASSWORD
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
+    //SET DEFAULT ROLE AS STUDENT 
     const defaultRole = await Role.findOne({
       where: {
         name: "Student",
       },
     });
+    if (!defaultRole) return res.status(500).json({ message: "Default role not configured" });
 
-    if (!defaultRole)
-      return res.status(500).json({ message: "Default role not configured" });
-    console.log(defaultRole);
-
+    //CREAT USER
     const user = await User.create({
       name: req.body.name,
       email: req.body.email,
       password: hashedPassword,
-      role_id: defaultRole?.id,
+      isSick: req.body.isSick,
+      role_id: defaultRole.id
     });
 
+    //GENERAT TOKEN
     const token = user.generateAuthToken(defaultRole?.name);
 
     res.json({

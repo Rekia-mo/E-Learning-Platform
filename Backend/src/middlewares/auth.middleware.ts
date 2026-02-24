@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET_KEY || "secretkey";
 
-// Type local pour Request avec la propriété user
 interface AuthRequest extends Request {
   user?: { id: string; role: string };
 }
@@ -15,7 +14,13 @@ export const authenticateToken = (
   next: NextFunction,
 ) => {
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1]; // format "Bearer <token>"
+  
+  let token;
+    if(authHeader && authHeader.startsWith('Bearer')){
+      token = authHeader.split(' ')[1];
+    }else{
+      token = authHeader
+    }
 
   if (!token)
     return res
