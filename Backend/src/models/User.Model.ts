@@ -12,19 +12,21 @@ interface UserAttributes {
   password: string;
   role_id: string;
   isSick: boolean;
+  emailVerified: boolean;
+  emailVerificationToken: string | null;
+  emailVerificationExpires: Date | null;
 }
 
 // 2️⃣ Interface des attributs optionnels à la création
 interface UserCreationAttributes extends Optional<
   UserAttributes,
-  "id" | "isSick"
-> {}
+  "id" | "isSick" | "emailVerificationExpires" | "emailVerified" | "emailVerificationToken"
+> { }
 
 // 3️⃣ Classe Model
 class User
   extends Model<UserAttributes, UserCreationAttributes>
-  implements UserAttributes
-{
+  implements UserAttributes {
   public id!: string;
   public name!: string;
   public email!: string;
@@ -32,6 +34,9 @@ class User
   public role_id!: string;
   public isSick!: boolean;
   public Role?: Role; // Association optionnelle pour accéder au rôle de l'utilisateur
+  public emailVerified!: boolean;
+  public emailVerificationToken!: string | null;
+  public emailVerificationExpires!: Date | null;
   // timestamps
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -83,6 +88,19 @@ User.init(
     isSick: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
+    },
+    emailVerified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    emailVerificationToken: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    emailVerificationExpires: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
   },
   {
