@@ -8,10 +8,11 @@ interface TeacherAttributes {
   isPsychologist: boolean;
   cv_URL?: string | null;
   status: "pending" | "approved" | "rejected";
+  descreption?: string | null;
 }
 
 // 2️⃣ Interface des attributs optionnels à la création
-interface TeacherCreationAttributes extends Optional<TeacherAttributes, "id" | "isPsychologist" | "cv_URL" | "status"> {}
+interface TeacherCreationAttributes extends Optional<TeacherAttributes, "id" | "isPsychologist" | "cv_URL" | "status" | "descreption"> { }
 
 // 3️⃣ Classe Model
 class Teacher extends Model<TeacherAttributes, TeacherCreationAttributes>
@@ -22,6 +23,7 @@ class Teacher extends Model<TeacherAttributes, TeacherCreationAttributes>
   public isPsychologist!: boolean;
   public cv_URL?: string | null;
   public status!: "pending" | "approved" | "rejected";
+  public descreption?: string | null;
 
   // timestamps
   public readonly createdAt!: Date;
@@ -47,6 +49,10 @@ Teacher.init(
     cv_URL: {
       type: DataTypes.STRING,
       allowNull: true
+    },
+    descreption: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
     status: {
       type: DataTypes.ENUM("pending", "approved", "rejected"),
