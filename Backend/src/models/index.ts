@@ -17,32 +17,32 @@ Role.hasMany(User, { foreignKey: "role_id" });
 User.belongsTo(Role, { foreignKey: "role_id" });
 
 // User - Teacher (1 → N)
-User.hasMany(Teacher, { foreignKey: "userId" });
-Teacher.belongsTo(User, { foreignKey: "userId" });
+User.hasMany(Teacher, { foreignKey: "user_id" });
+Teacher.belongsTo(User, { foreignKey: "user_id" });
 
 // User - Course (N → N)
-User.belongsToMany(Course, { through: Enrollment, foreignKey: "userId" });
-Course.belongsToMany(User, { through: Enrollment, foreignKey: "courseId" });
+User.belongsToMany(Course, { through: Enrollment, foreignKey: "user_id" });
+Course.belongsToMany(User, { through: Enrollment, foreignKey: "course_id" });
 
 // User - Course (N → N)
 User.belongsToMany(Course, { through: Saved_Course, foreignKey: "userId" });
 Course.belongsToMany(User, { through: Saved_Course, foreignKey: "courseId" });
 
 // Teacher - Course (1 → N)
-Teacher.hasMany(Course, { foreignKey: "teacherId" });
-Course.belongsTo(Teacher, { foreignKey: "teacherId" });
+Teacher.hasMany(Course, { foreignKey: "teacher_id" });
+Course.belongsTo(Teacher, { foreignKey: "teacher_id" });
 
 // Category - Course (1 → N)
-Category.hasMany(Course, { foreignKey: "categoryId" });
-Course.belongsTo(Category, { foreignKey: "categoryId" });
+Category.hasMany(Course, { foreignKey: "category_id" });
+Course.belongsTo(Category, { foreignKey: "category_id" });
 
 // User - Post (1 → N)
-User.hasMany(Post, { foreignKey: "userId" });
-Post.belongsTo(User, { foreignKey: "userId" });
+User.hasMany(Post, { foreignKey: "user_id" });
+Post.belongsTo(User, { foreignKey: "user_id" });
 
 // Post - PostComment (1 → N)
-Post.hasMany(PostComment, { foreignKey: "postId" });
-PostComment.belongsTo(Post, { foreignKey: "postId" });
+Post.hasMany(PostComment, { foreignKey: "post_id" });
+PostComment.belongsTo(Post, { foreignKey: "post_id" });
 
 // User - PostComment (1 → N)
 User.hasMany(PostComment, { foreignKey: "userId" });
