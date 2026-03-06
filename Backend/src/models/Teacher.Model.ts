@@ -1,5 +1,7 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/db";
+import {z} from "zod";
+
 
 // 1️⃣ Interface des attributs du model
 interface TeacherAttributes {
@@ -67,5 +69,18 @@ Teacher.init(
     freezeTableName: true,
   }
 );
+
+// Validation schema
+
+export const teacherSchema = z.object({
+
+  isPsychologist: z.boolean().default(false),
+
+  cv_URL: z.url("Must be a valid URL").nullable().optional(),
+
+  descreption: z.string().max(2000).nullable().optional(),
+
+  status: z.enum(["pending", "approved", "rejected"]).default("pending")
+}).strict();
 
 export default Teacher;
