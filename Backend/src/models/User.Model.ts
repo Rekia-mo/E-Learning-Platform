@@ -52,7 +52,7 @@ class User
         role: roleName,
       },
       process.env.JWT_SECRET_KEY as string,
-      { expiresIn: "7d" },
+      { expiresIn: "7d" }, 
     );
   }
 }
