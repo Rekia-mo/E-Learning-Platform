@@ -18,13 +18,18 @@ interface AuthRequest extends Request {
 //POST NEW TEACHER
 export const createTeacher = async (req: AuthRequest, res: Response) => {
   try {
-    const { isPsychologist, cv_URL, descreption } = req.body as createTeacherBody;
+    const { isPsychologist, descreption } = req.body as createTeacherBody;
 
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
     const user_id = req.user.id;
 
+    //CHECK IF CV FILE IS UPLOADED
+    if (!req.file) {
+      return res.status(400).json({ message: "CV is required" });
+    }
+    const cv_URL= req.file.path;
 
     //CHECK IF TEACHER ALREADY EXISTS FOR THE USER
     const existingTeacher = await Teacher.findOne({
@@ -163,7 +168,7 @@ export const updateTeacherStatus = async (req: Request<{ id: string }>, res: Res
 
     if (!teacher) return res.status(404).json({ message: "Teacher not found" });
 
-  //  IF APPROVED, UPDATE USER ROLE TO TEACHER
+    //  IF APPROVED, UPDATE USER ROLE TO TEACHER
     if (status === "approved") {
       //get role id for teacher
       const role = await Role.findOne({ where: { name: "teacher" } });
