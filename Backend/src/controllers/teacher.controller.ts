@@ -76,7 +76,15 @@ export const getAllTeachers = async (req: Request, res: Response) => {
         }
       ]
     });
-    res.json(teachers);
+
+    const baseURL = `${req.protocol}://${req.get("host")}`;
+
+    const teachersWithUrls = teachers.map(teacher => ({
+      ...teacher.toJSON(),
+      cv_URL: teacher.cv_URL ? `${baseURL}/${teacher.cv_URL.replace(/\\/g, "/")}` : null
+    }));
+    
+    res.json(teachersWithUrls);
   } catch (err: any) {
     console.log(err);
     return res.status(500).json({ err: err.message });
