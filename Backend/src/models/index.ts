@@ -33,8 +33,8 @@ Teacher.hasMany(Course, { foreignKey: "teacher_id" });
 Course.belongsTo(Teacher, { foreignKey: "teacher_id" });
 
 // Category - Course (1 → N)
-Category.hasMany(Course, { foreignKey: "category_id" });
-Course.belongsTo(Category, { foreignKey: "category_id" });
+Category.hasMany(Course, { foreignKey: "categorie_id" });
+Course.belongsTo(Category, { foreignKey: "categorie_id" });
 
 // User - Post (1 → N)
 User.hasMany(Post, { foreignKey: "user_id" });
