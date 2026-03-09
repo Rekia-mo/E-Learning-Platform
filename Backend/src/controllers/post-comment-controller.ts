@@ -20,6 +20,36 @@ const updateCommentSchema = z.object({
   comment: z.string().min(1).optional(),
 });
 
+// ================================ GET COMMENTS OF A POST =============================
+// Récupérer tous les commentaires d'un post spécifique
+
+export const getCommentsByPost = async (req: AuthRequest, res: Response) => {
+  try {
+    // Récupérer l'ID du post depuis l'URL
+    let { post_id } = req.params;
+    if (Array.isArray(post_id)) post_id = post_id[0]; // sécurité TypeScript
+
+    // Chercher tous les commentaires liés à ce post
+    const comments = await PostComment.findAll({
+      where: { post_id },
+      include: [
+        { model: User, attributes: ["name"] }, // info de l'auteur
+        { model: Post, attributes: ["title"] }, // info du post
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    return res.status(200).json({
+      success: true,
+      count: comments.length, // nombre total de commentaires
+      data: comments, // tous les commentaires du post
+    });
+  } catch (err: any) {
+    console.log(err);
+    return res.status(500).json({ err: err.message });
+  }
+};
+/*
 // ================================ GET ALL COMMENTS =============================
 // Récupérer tous les commentaires
 
@@ -43,7 +73,7 @@ export const getComments = async (req: AuthRequest, res: Response) => {
     return res.status(500).json({ err: err.message });
   }
 };
-
+*/
 // ================================ GET MY COMMENTS =============================
 // Récupérer uniquement les commentaires de l'utilisateur connecté
 

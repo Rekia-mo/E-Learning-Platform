@@ -2,7 +2,7 @@ import express, { Router } from "express";
 import { authorize } from "../middlewares/role.middelware";
 import { authenticateToken } from "../middlewares/auth.middleware";
 import {
-  getComments,
+  getCommentsByPost,
   getMyComments,
   createComment,
   updateComment,
@@ -15,7 +15,7 @@ const router = Router();
 // ================= GET =================
 
 // tous les commentaires
-router.get("/", authenticateToken, getComments);
+router.get("/post/:post_id", authenticateToken, getCommentsByPost);
 
 // commentaires du user connecté
 router.get("/me", authenticateToken, getMyComments);
