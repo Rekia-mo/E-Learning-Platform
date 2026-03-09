@@ -62,7 +62,7 @@ export const getPosts = async (req: AuthRequest, res: Response) => {
     // ✅ Filtrage selon isSick
     posts = posts.filter((post) => post.User?.isSick === currentUser.isSick);
 
-    // ✅ Retourner toutes les données sans formatage
+    // ✅ Retourner toutes les données 
     return res.status(200).json({
       success: true,
       count: posts.length, // nombre total de posts
