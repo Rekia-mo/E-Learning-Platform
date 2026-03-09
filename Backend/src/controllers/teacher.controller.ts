@@ -77,6 +77,7 @@ export const getAllTeachers = async (req: Request, res: Response) => {
       ]
     });
 
+    // Add base URL to cv_URL to make it accessible  
     const baseURL = `${req.protocol}://${req.get("host")}`;
 
     const teachersWithUrls = teachers.map(teacher => ({

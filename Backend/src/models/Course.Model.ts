@@ -1,5 +1,6 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/db";
+import { z } from "zod";
 
 // 1️⃣ Interface des attributs du model
 interface CourseAttributes {
@@ -7,7 +8,7 @@ interface CourseAttributes {
   title: string;
   description: string;
   document?: string | null;
-  image_url: string;
+  image_url?: string | null;
   isSpecialized: boolean;
   teacher_id: string;
   categorie_id: string;
@@ -24,7 +25,7 @@ class Course extends Model<CourseAttributes, CourseCreationAttributes>
   public title!: string;
   public description!: string;
   public document?: string | null;
-  public image_url!: string;
+  public image_url?: string | null;
   public isSpecialized!: boolean;
   public teacher_id!: string;
   public categorie_id!: string;
@@ -78,5 +79,15 @@ Course.init(
     freezeTableName: true,
   }
 );
+
+export const CreateCourseSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().min(1),
+  document: z.string().url().nullable().optional(),
+  image_url: z.string().url().nullable().optional(),
+  isSpecialized: z.boolean(),
+  teacher_id: z.string().uuid(),
+  categorie_id: z.string().uuid(),
+});
 
 export default Course;
