@@ -30,7 +30,7 @@ export const createTeacher = async (req: AuthRequest, res: Response) => {
     if (!req.file) {
       return res.status(400).json({ message: "CV is required" });
     }
-    const cv_URL= req.file.path;
+    const cv_URL = req.file.path;
 
     //CHECK IF TEACHER ALREADY EXISTS FOR THE USER
     const existingTeacher = await Teacher.findOne({
@@ -85,7 +85,7 @@ export const getAllTeachers = async (req: Request, res: Response) => {
       ...teacher.toJSON(),
       cv_URL: teacher.cv_URL ? `${baseURL}/${teacher.cv_URL.replace(/\\/g, "/")}` : null
     }));
-    
+
     res.json(teachersWithUrls);
   } catch (err: any) {
     console.log(err);
@@ -115,7 +115,18 @@ export const getTeacherById = async (req: Request<{ id: string }>, res: Response
 
     if (!teacher) return res.status(404).json({ message: "Teacher not found" });
 
-    res.json(teacher);
+    const baseURL = `${req.protocol}://${req.get("host")}`;
+
+    // Attach full CV URL if it exists
+    const teacherWithUrl = {
+      ...teacher.toJSON(), // convert to plain object
+      cv_URL: teacher.cv_URL ? `${baseURL}/${teacher.cv_URL.replace(/\\/g, "/")}` : null
+    };
+
+    res.json({
+      success: true,
+      teacherWithUrl
+    });
   } catch (err: any) {
     console.log(err);
     return res.status(500).json({ err: err.message });

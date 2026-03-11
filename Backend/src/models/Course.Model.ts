@@ -10,12 +10,13 @@ interface CourseAttributes {
   document?: string | null;
   image_url?: string | null;
   isSpecialized: boolean;
+  likes: number;
   teacher_id: string;
   categorie_id: string;
 }
 
 // 2️⃣ Interface des attributs optionnels à la création
-interface CourseCreationAttributes extends Optional<CourseAttributes, "id" | "document" | "isSpecialized"> {}
+interface CourseCreationAttributes extends Optional<CourseAttributes, "id" | "document" | "isSpecialized"> { }
 
 // 3️⃣ Classe Model
 class Course extends Model<CourseAttributes, CourseCreationAttributes>
@@ -27,6 +28,7 @@ class Course extends Model<CourseAttributes, CourseCreationAttributes>
   public document?: string | null;
   public image_url?: string | null;
   public isSpecialized!: boolean;
+  public likes!: number;
   public teacher_id!: string;
   public categorie_id!: string;
 
@@ -70,6 +72,11 @@ Course.init(
     categorie_id: {
       type: DataTypes.UUID,
       allowNull: false
+    },
+    likes: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
     }
   },
   {
@@ -83,11 +90,10 @@ Course.init(
 export const CreateCourseSchema = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
-  document: z.string().url().nullable().optional(),
-  image_url: z.string().url().nullable().optional(),
-  isSpecialized: z.boolean(),
-  teacher_id: z.string().uuid(),
-  categorie_id: z.string().uuid(),
+  document: z.url("Must be a valid URL").nullable().optional(),
+  image_url: z.url("Must be a valid URL").nullable().optional(),
+  isSpecialized: z.boolean().optional(),
+  categorie_id: z.uuid(),
 });
 
 export default Course;

@@ -10,15 +10,14 @@ import { teacherSchema } from "../models/Teacher.Model";
 import { authenticateToken } from "../middlewares/auth.middleware";
 import { validate } from "../middlewares/validate";
 import { authorize } from "../middlewares/role.middelware";
-import { uploadCV } from "../middlewares/uploadCV";
+import { upload } from "../middlewares/uploads";
 
 const router = express.Router();
 
 //CREAT NEW TEACHER
 //note: cv_URL is the name of the field in the form-data that contains the CV file
+router.post("/", authenticateToken, upload.single("cv_URL"), validate(teacherSchema), createTeacher);
 
-router.post("/",authenticateToken,uploadCV.single("cv_URL"), validate(teacherSchema),createTeacher,);
-  
 //get all teachers (ADMIN ONLY)
 router.get("/", authenticateToken, authorize(["Admin"]), getAllTeachers);
 
