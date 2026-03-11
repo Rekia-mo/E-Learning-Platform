@@ -1,6 +1,6 @@
-// post-comments.controller.ts
+// course-comments.controller.ts
 import { Request, Response } from "express";
-import { PostComment, Post, User } from "../models/index";
+import { CourseComment, Course, User } from "../models/index";
 import { z } from "zod";
 
 // Interface pour récupérer les infos de l'utilisateur depuis le token
@@ -20,29 +20,27 @@ const updateCommentSchema = z.object({
   comment: z.string().min(1).optional(),
 });
 
-// ================================ GET COMMENTS OF A POST =============================
-// Récupérer tous les commentaires d'un post spécifique
+// ================================ GET COMMENTS OF A COURSE =============================
+// Récupérer tous les commentaires d'un cours spécifique
 
-export const getCommentsByPost = async (req: AuthRequest, res: Response) => {
+export const getCommentsByCourse = async (req: AuthRequest, res: Response) => {
   try {
-    // Récupérer l'ID du post depuis l'URL
-    let { post_id } = req.params;
-    if (Array.isArray(post_id)) post_id = post_id[0]; // sécurité TypeScript
+    let { course_id } = req.params;
+    if (Array.isArray(course_id)) course_id = course_id[0]; // sécurité TypeScript
 
-    // Chercher tous les commentaires liés à ce post
-    const comments = await PostComment.findAll({
-      where: { post_id },
+    const comments = await CourseComment.findAll({
+      where: { course_id },
       include: [
-        { model: User, attributes: ["name"] }, // info de l'auteur
-        { model: Post, attributes: ["title"] }, // info du post
+        { model: User, attributes: ["name"] },
+        { model: Course, attributes: ["title"] },
       ],
       order: [["createdAt", "DESC"]],
     });
 
     return res.status(200).json({
       success: true,
-      count: comments.length, // nombre total de commentaires
-      data: comments, // tous les commentaires du post
+      count: comments.length,
+      data: comments,
     });
   } catch (err: any) {
     console.log(err);
@@ -57,7 +55,7 @@ export const getMyComments = async (req: AuthRequest, res: Response) => {
   try {
     const user_id = req.user!.id;
 
-    const comments = await PostComment.findAll({
+    const comments = await CourseComment.findAll({
       where: { user_id },
       order: [["createdAt", "DESC"]],
     });
@@ -74,33 +72,26 @@ export const getMyComments = async (req: AuthRequest, res: Response) => {
 };
 
 // ================================ CREATE COMMENT (POST) ==============================
-// Ajouter un commentaire à un post spécifique
+// Ajouter un commentaire à un cours spécifique
 
 export const createComment = async (req: AuthRequest, res: Response) => {
   try {
-    // récupération de l'id du post depuis l'URL
-    let { post_id } = req.params;
-    if (Array.isArray(post_id)) post_id = post_id[0]; // sécurité TypeScript
+    let { course_id } = req.params;
+    if (Array.isArray(course_id)) course_id = course_id[0];
 
-    // validation du body avec Zod
     const body = createCommentSchema.parse(req.body);
-
-    // récupération de l'utilisateur connecté
     const user_id = req.user!.id;
 
-    // vérifier que le post existe
-    const post = await Post.findByPk(post_id);
-
-    if (!post)
+    const course = await Course.findByPk(course_id);
+    if (!course)
       return res
         .status(404)
-        .json({ success: false, message: "Post not found" });
+        .json({ success: false, message: "Course not found" });
 
-    // création du commentaire
-    const comment = await PostComment.create({
+    const comment = await CourseComment.create({
       comment: body.comment,
       user_id,
-      post_id,
+      course_id,
     });
 
     return res.status(201).json({
@@ -119,28 +110,23 @@ export const createComment = async (req: AuthRequest, res: Response) => {
 export const updateComment = async (req: AuthRequest, res: Response) => {
   try {
     let { id } = req.params;
-    if (Array.isArray(id)) id = id[0]; // sécurité TypeScript
+    if (Array.isArray(id)) id = id[0];
 
-    // validation du body
     const body = updateCommentSchema.parse(req.body);
-
-    const comment = await PostComment.findByPk(id);
+    const comment = await CourseComment.findByPk(id);
 
     if (!comment)
       return res
         .status(404)
         .json({ success: false, message: "Comment not found" });
 
-    // vérifier que l'utilisateur est le propriétaire
     const user_id = req.user!.id;
-
     if (comment.user_id !== user_id)
       return res.status(403).json({
         success: false,
         message: "User is not authorized to update this comment",
       });
 
-    // mise à jour
     await comment.update({
       comment: body.comment ?? comment.comment,
     });
@@ -163,16 +149,14 @@ export const deleteComment = async (req: AuthRequest, res: Response) => {
     let { id } = req.params;
     if (Array.isArray(id)) id = id[0];
 
-    const comment = await PostComment.findByPk(id);
+    const comment = await CourseComment.findByPk(id);
 
     if (!comment)
       return res
         .status(404)
         .json({ success: false, message: "Comment not found" });
 
-    // vérification de propriété
     const user_id = req.user!.id;
-
     if (comment.user_id !== user_id)
       return res.status(403).json({
         success: false,
@@ -192,36 +176,27 @@ export const deleteComment = async (req: AuthRequest, res: Response) => {
 };
 
 // ================================ DELETE COMMENT BY ADMIN (DELETE) ==============================
-// Supprimer un commentaire si l'utilisateur est Admin (la vérification est faite dans le middleware)
+// Supprimer un commentaire si l'utilisateur est Admin
 
 export const deleteCommentByAdmin = async (req: AuthRequest, res: Response) => {
   try {
-    // récupérer l'id du commentaire depuis les paramètres de l'URL
     let { id } = req.params;
-    if (Array.isArray(id)) id = id[0]; // sécurité TypeScript
+    if (Array.isArray(id)) id = id[0];
 
-    // chercher le commentaire dans la base de données
-    const comment = await PostComment.findByPk(id);
-
-    // si le commentaire n'existe pas
+    const comment = await CourseComment.findByPk(id);
     if (!comment)
       return res
         .status(404)
         .json({ success: false, message: "Comment not found" });
 
-    // suppression du commentaire
     await comment.destroy();
 
-    // réponse envoyée au client
     return res.status(200).json({
       success: true,
       message: "Comment deleted successfully by admin",
     });
   } catch (err: any) {
-    // affichage de l'erreur dans le terminal
     console.log(err);
-
-    // réponse en cas d'erreur serveur
     return res.status(500).json({ err: err.message });
   }
 };
