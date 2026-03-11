@@ -30,7 +30,6 @@ export const createCourse = async (req: AuthRequest, res: Response) => {
     });
 
     if (!teacher) return res.status(400).json({ message: "Teacher profile not found for this user" });
-    const teacher_id = teacher.id;
 
     const { title, description, isSpecialized, categorie_id } = req.body as CourseAttributes;
 
@@ -41,7 +40,8 @@ export const createCourse = async (req: AuthRequest, res: Response) => {
       document: req.file ? req.file.path : null,
       image_url: req.file ? req.file.path : null,
       categorie_id,
-      teacher_id
+      teacher_id: teacher.id,
+      likes: 0
     });
 
     res.json({
@@ -55,41 +55,62 @@ export const createCourse = async (req: AuthRequest, res: Response) => {
   }
 }
 
-//GET COURSES BY TEACHER ID 
-
-
-//GET COURSES BY CATEGORY ID
-
-
-//GET COURSES BY isSpecialized
-
-
-//GET COURSES BY COURSE ID
-
-
 //GET MY COURSES 
+export const getMyCourses = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+    const user_id = req.user.id;
 
+    //chetk if teacher profile exists for the user
+    const teacher = await Teacher.findOne({
+      where: { user_id }
+    })
+
+    if (!teacher) return res.status(404).json({ message: "Teacher profile not found for this user" });
+
+    const courses = await Course.findAll({
+      where: { teacher_id: teacher.id },
+      include: [
+        {
+          model: Teacher
+        },
+        {
+          model: Category,
+          attributes: ["name"]
+        }
+      ]
+    });
+
+    res.json({
+      success: true,
+      courses
+    });
+
+  } catch (err: any) {
+    console.log(err);
+    return res.status(500).json({ err: err.message });
+  }
+}
 
 //GET ALL COURSES
 export const getCourses = async (req: Request, res: Response) => {
   try {
 
-    const { teacher_id, category_id, isSpecialized } = req.query;
+    const { teacher_id, categorie_id, isSpecialized } = req.query;
 
     let filter: any = {};
-    
+
     if (teacher_id) {
-      filter.teacher_id = Number(teacher_id);
+      filter.teacher_id = teacher_id;
     }
 
-    if (category_id) {
-      filter.category_id = Number(category_id);
+    if (categorie_id) {
+      filter.categorie_id = categorie_id;
     }
 
     if (isSpecialized !== undefined) {
-      filter.isSpecialized = isSpecialized === "true";
+      filter.isSpecialized = isSpecialized === "true"; 
     }
-    console.log("FILTER:", filter);
 
     const courses = await Course.findAll({
       where: filter,
@@ -115,40 +136,116 @@ export const getCourses = async (req: Request, res: Response) => {
   }
 };
 
-//UPDATE COURSE (TEACHER)
-export const updateCourse = async (req: AuthRequest, res: Response) => {
+//GET COURCE BY ID
+export const getCourseById = async (req: Request<{ id: string }>, res: Response) => {
   try {
+    if (!req.params.id) return res.status(400).json({ message: "No course ID provided" });
 
-    //get the Course id from the request params
-    if (!req.user) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-    const userId = req.user.id;
-
-    //find the Course by id
-    let course = await Course.findByPk(userId);
-    if (!course) {
-      return res.status(404).json({ message: "Course not found" });
-    }
-
-    const { title, description, isSpecialized, image_url, categorie_id } = req.body;
-
-    //update the Course's attributes
-    let updatedCourse = await Course.update({ title, description, isSpecialized, image_url, categorie_id }, { where: { id: userId } });
-
-    res.json({
-      updatedCourse,
-      success: true,
-      message: "Course role updated successfully"
+    const course = await Course.findByPk(req.params.id, {
+      include: [
+        {
+          model: Teacher
+        },
+        {
+          model: Category,
+          attributes: ["name"]
+        }
+      ]
     });
 
+    if (!course) return res.status(404).json({ message: "course not found" });
+
+    res.json({
+      success: true,
+      course
+    });
   } catch (err: any) {
     console.log(err);
     return res.status(500).json({ err: err.message });
   }
 }
+//UPDATE COURSE (TEACHER)
+export const updateCourse = async (req: AuthRequest, res: Response) => {
+  try {
 
-//DELETE COURSE (me TEACHER + ADMIN)
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const userId = req.user.id;
+    const courseId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+
+    // find teacher profile
+    const teacher = await Teacher.findOne({
+      where: { user_id: userId }
+    });
+
+    if (!teacher) {
+      return res.status(404).json({ message: "Teacher profile not found" });
+    }
+
+    // find the course
+    const course = await Course.findByPk(courseId);
+
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    // check ownership
+    if (course.teacher_id !== teacher.id) {
+      return res.status(403).json({ message: "You cannot update this course" });
+    }
+
+    const { title, description, isSpecialized, image_url, categorie_id } = req.body;
+
+    await course.update({
+      title,
+      description,
+      isSpecialized,
+      image_url,
+      categorie_id
+    });
+
+    res.json({
+      success: true,
+      message: "Course updated successfully",
+      course
+    });
+
+  } catch (err: any) {
+    console.log(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+//DELETE COURS BY (ADMIN)
+export const deleteCourseByAdmin = async (req: AuthRequest, res: Response) => {
+  try {
+
+    //get the Course id from the request params (DELTE BY ID)
+    const course_id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    if (!course_id) {
+      res.json({ message: "No Course ID provided" });
+    };
+
+    //find the Course by id
+    const CourseInstance = await Course.findByPk(course_id);
+    if (!CourseInstance) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    //delete the Course
+    await CourseInstance.destroy();
+    res.json({ message: "Course deleted successfully" });
+
+  } catch (err: any) {
+    console.log(err);
+    return res.status(500).json({ err: err.message });
+  }
+
+}
+
+//DELETE COURSE (me TEACHER)
 export const deleteCourse = async (req: AuthRequest, res: Response) => {
   try {
 
@@ -190,3 +287,30 @@ export const deleteCourse = async (req: AuthRequest, res: Response) => {
   }
 
 }
+
+//ADD LIKES
+export const likeCourse = async (req: Request<{ id: string }>, res: Response) => {
+  try {
+    // Récupérer l'id du Course
+    const id = req.params.id;
+
+    const course = await Course.findByPk(id);
+    if (!course)
+      return res
+        .status(404)
+        .json({ success: false, message: "Course not found" });
+
+    // Incrémenter le nombre de likes
+    course.likes += 1;
+    await course.save();
+
+    // Retourner toutes les données du Course
+    return res.status(200).json({
+      success: true,
+      data: course,
+    });
+  } catch (err: any) {
+    console.log(err);
+    return res.status(500).json({ err: err.message });
+  }
+};
