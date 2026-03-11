@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Course, Teacher, Category } from "../models/index";
+import { is } from "zod/v4/locales";
 
 interface CourseAttributes {
   id: string;
@@ -31,14 +32,24 @@ export const createCourse = async (req: AuthRequest, res: Response) => {
 
     if (!teacher) return res.status(400).json({ message: "Teacher profile not found for this user" });
 
-    const { title, description, isSpecialized, categorie_id } = req.body as CourseAttributes;
+    const files = req.files as {
+      image_url?: Express.Multer.File[];
+      document?: Express.Multer.File[];
+    };
+
+    const imagePath = files?.image_url?.[0]?.path || null;
+    const documentPath = files?.document?.[0]?.path || null;
+
+    let { title, description, isSpecialized, categorie_id } = req.body as CourseAttributes;
+
+    if (!isSpecialized) isSpecialized = false;
 
     const course = await Course.create({
       title,
       description,
       isSpecialized,
-      document: req.file ? req.file.path : null,
-      image_url: req.file ? req.file.path : null,
+      document: documentPath,
+      image_url: imagePath,
       categorie_id,
       teacher_id: teacher.id,
       likes: 0
@@ -81,9 +92,17 @@ export const getMyCourses = async (req: AuthRequest, res: Response) => {
       ]
     });
 
+    const baseURL = `${req.protocol}://${req.get("host")}`;
+
+    const courseWithUrls = courses.map(course => ({
+      ...course.toJSON(),
+      image_url: course.image_url ? `${baseURL}/${course.image_url.replace(/\\/g, "/")}` : null,
+      document: course.document ? `${baseURL}/${course.document.replace(/\\/g, "/")}` : null
+    }));
+
     res.json({
       success: true,
-      courses
+      courses: courseWithUrls
     });
 
   } catch (err: any) {
@@ -109,7 +128,7 @@ export const getCourses = async (req: Request, res: Response) => {
     }
 
     if (isSpecialized !== undefined) {
-      filter.isSpecialized = isSpecialized === "true"; 
+      filter.isSpecialized = isSpecialized === "true";
     }
 
     const courses = await Course.findAll({
@@ -124,10 +143,17 @@ export const getCourses = async (req: Request, res: Response) => {
         }
       ]
     });
+    const baseURL = `${req.protocol}://${req.get("host")}`;
+
+    const courseWithUrls = courses.map(course => ({
+      ...course.toJSON(),
+      image_url: course.image_url ? `${baseURL}/${course.image_url.replace(/\\/g, "/")}` : null,
+      document: course.document ? `${baseURL}/${course.document.replace(/\\/g, "/")}` : null
+    }));
 
     res.json({
       success: true,
-      courses
+      courses: courseWithUrls
     });
 
   } catch (err: any) {
@@ -155,15 +181,24 @@ export const getCourseById = async (req: Request<{ id: string }>, res: Response)
 
     if (!course) return res.status(404).json({ message: "course not found" });
 
+    const baseURL = `${req.protocol}://${req.get("host")}`;
+
+    const courseWithUrls = {
+      ...course.toJSON(),
+      image_url: course.image_url ? `${baseURL}/${course.image_url.replace(/\\/g, "/")}` : null,
+      document: course.document ? `${baseURL}/${course.document.replace(/\\/g, "/")}` : null
+    };
+
     res.json({
       success: true,
-      course
+      courses: courseWithUrls
     });
   } catch (err: any) {
     console.log(err);
     return res.status(500).json({ err: err.message });
   }
 }
+
 //UPDATE COURSE (TEACHER)
 export const updateCourse = async (req: AuthRequest, res: Response) => {
   try {
@@ -199,11 +234,11 @@ export const updateCourse = async (req: AuthRequest, res: Response) => {
     const { title, description, isSpecialized, image_url, categorie_id } = req.body;
 
     await course.update({
-      title,
-      description,
-      isSpecialized,
-      image_url,
-      categorie_id
+      ...(title && { title }),
+      ...(description && { description }),
+      ...(isSpecialized !== undefined && { isSpecialized }),
+      ...(image_url && { image_url }),
+      ...(categorie_id && { categorie_id })
     });
 
     res.json({
@@ -301,8 +336,9 @@ export const likeCourse = async (req: Request<{ id: string }>, res: Response) =>
         .json({ success: false, message: "Course not found" });
 
     // Incrémenter le nombre de likes
-    course.likes += 1;
-    await course.save();
+    await course.increment("likes");
+    await course.reload();
+
 
     // Retourner toutes les données du Course
     return res.status(200).json({

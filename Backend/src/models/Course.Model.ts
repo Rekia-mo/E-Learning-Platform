@@ -90,9 +90,9 @@ Course.init(
 export const CreateCourseSchema = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
-  document: z.string().url().nullable().optional(),
-  image_url: z.string().url().nullable().optional(),
-  isSpecialized: z.boolean(),
+  document: z.url("Must be a valid URL").nullable().optional(),
+  image_url: z.url("Must be a valid URL").nullable().optional(),
+  isSpecialized: z.boolean().optional(),
   categorie_id: z.uuid(),
 });
 

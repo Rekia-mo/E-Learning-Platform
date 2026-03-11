@@ -4,10 +4,14 @@ import { authenticateToken } from "../middlewares/auth.middleware";
 import { validate } from "../middlewares/validate";
 import{ createCourse, deleteCourse, getCourses, updateCourse, getMyCourses, likeCourse, deleteCourseByAdmin, getCourseById } from "../controllers/course.controller"; 
 import { CreateCourseSchema } from "../models/Course.Model";
+import { upload } from "../middlewares/uploads";
 const router = express.Router();
 
 //CREAT NEW COURSE (TEACHER)
-router.post('/', validate(CreateCourseSchema), authenticateToken, authorize(['Teacher']), createCourse);
+router.post('/', authenticateToken, authorize(['Teacher']), upload.fields([
+    { name: "image_url", maxCount: 1 },
+    { name: "document", maxCount: 1 }
+  ]), validate(CreateCourseSchema),createCourse);
 
 //DELETE COURSE (TEACHER)
 router.delete('/:id', authenticateToken, authorize(['Teacher']), deleteCourse);
