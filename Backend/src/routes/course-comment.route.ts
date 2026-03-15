@@ -31,16 +31,31 @@ router.post("/course/:course_id", authenticateToken, createComment);
 //-------------------------------PUT------------------------------
 
 // 🔹 Mettre à jour mon commentaire
-router.put("/:id", authenticateToken, authorize(["Student", "Teacher"]), updateComment);
+router.put(
+  "/:id",
+  authenticateToken,
+  authorize(["Student", "Teacher"]),
+  updateComment,
+);
 
 //-------------------------------DELETE------------------------------
 
 // 🔹 Supprimer mon commentaire
-router.delete("/:id", authenticateToken, authorize(["Student", "Teacher"]), deleteComment);
+router.delete(
+  "/:id",
+  authenticateToken,
+  authorize(["Student", "Teacher"]),
+  deleteComment,
+);
 
 //-------------------------------DELETE (ADMIN)------------------------------
 
 // 🔹 Supprimer un commentaire en tant qu'admin
-router.delete("/admin/:id", authenticateToken, authorize(["admin"]), deleteCommentByAdmin);
+router.delete(
+  "/admin/:id",
+  authenticateToken,
+  authorize(["Admin"]),
+  deleteCommentByAdmin,
+);
 
 export default router;

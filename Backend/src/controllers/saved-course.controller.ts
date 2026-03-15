@@ -43,6 +43,57 @@ export const getMySavedCourses = async (req: AuthRequest, res: Response) => {
 };
 
 // ================================ CREATE SAVED COURSE ==============================
+// Ajouter un cours dans les favoris via l'URL
+
+export const createSavedCourse = async (req: AuthRequest, res: Response) => {
+  try {
+    // Récupérer course_id depuis l'URL
+    const { course_id } = req.params;
+
+    // Validation ZOD du paramètre course_id
+    const validated = createSavedCourseSchema.parse({ course_id });
+
+    const user_id = req.user!.id;
+
+    // vérifier que le cours existe
+    const course = await Course.findByPk(validated.course_id);
+
+    if (!course)
+      return res
+        .status(404)
+        .json({ success: false, message: "Course not found" });
+
+    // vérifier si le cours est déjà sauvegardé
+    const alreadySaved = await Saved_Course.findOne({
+      where: {
+        user_id,
+        course_id: validated.course_id,
+      },
+    });
+
+    if (alreadySaved)
+      return res.status(400).json({
+        success: false,
+        message: "Course already saved",
+      });
+
+    const savedCourse = await Saved_Course.create({
+      user_id,
+      course_id: validated.course_id,
+    });
+
+    return res.status(201).json({
+      success: true,
+      data: savedCourse,
+    });
+  } catch (err: any) {
+    console.log(err);
+    return res.status(500).json({ err: err.message });
+  }
+};
+
+/*
+// ================================ CREATE SAVED COURSE ==============================
 // Ajouter un cours dans les favoris
 
 export const createSavedCourse = async (req: AuthRequest, res: Response) => {
@@ -86,7 +137,7 @@ export const createSavedCourse = async (req: AuthRequest, res: Response) => {
     return res.status(500).json({ err: err.message });
   }
 };
-
+*/
 // ================================ DELETE SAVED COURSE ==============================
 // Supprimer un cours des favoris
 

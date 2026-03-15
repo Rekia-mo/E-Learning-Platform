@@ -18,7 +18,12 @@ router.get(
 );
 
 // SAVE a course
-router.post("/", authenticateToken, authorize(["Student"]), createSavedCourse);
+router.post(
+  "/:course_id",
+  authenticateToken,
+  authorize(["Student"]),
+  createSavedCourse,
+);
 
 // DELETE saved course
 router.delete(
