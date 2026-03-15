@@ -24,7 +24,12 @@ export const createLesson = async (req: AuthRequest, res: Response) => {
     }
 
     const course_id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const { title, description, vedio_url, order_index } = req.body as LessonAttributes;
+    const { title, description, order_index } = req.body as LessonAttributes;
+
+    if (!req.file) {
+      return res.status(400).json({ message: "Video is required" });
+    }
+    const vedio_url = req.file.path ;
 
     // find teacher linked to this user
     const teacher = await Teacher.findOne({
@@ -71,7 +76,9 @@ export const createLesson = async (req: AuthRequest, res: Response) => {
 //GET ALL LESSONS OF COURSE
 export const getLessonsByCourse = async (req: Request<{ id: string }>, res: Response) => {
   try {
+
     const course_id = req.params.id;
+
     if (!course_id) {
       return res.status(400).json({ message: "Course ID is required" });
     }
@@ -81,17 +88,26 @@ export const getLessonsByCourse = async (req: Request<{ id: string }>, res: Resp
       order: [["order_index", "ASC"]],
       include: [
         {
-          model: Course,
-        }]
+          model: Course
+        }
+      ]
     });
 
     if (lessons.length === 0) {
       return res.status(404).json({ message: "No lessons found for this course" });
     }
 
+     // Add base URL to cv_URL to make it accessible  
+    const baseURL = `${req.protocol}://${req.get("host")}`;
+
+    const lessonsWithVideos = lessons.map(lesson => ({
+      ...lesson.toJSON(),
+      vedio_url: lesson.vedio_url ? `${baseURL}/${lesson.vedio_url.replace(/\\/g, "/")}` : null
+    }));
+
     res.json({
       success: true,
-      lessons
+      lessons: lessonsWithVideos
     });
 
   } catch (err: any) {
@@ -165,7 +181,6 @@ export const updateLesson = async (req: AuthRequest, res: Response) => {
     return res.status(500).json({ error: err.message });
   }
 };
-
 
 //DELETE LESSON (TEACHER)
 export const deleteLessonTeacher = async (req: AuthRequest, res: Response) => {

@@ -71,7 +71,7 @@ Lesson.init(
 export const createLessonSchema = z.object({
   title: z.string().min(3),
   description: z.string().optional(),
-  vedio_url: z.string(),
+  vedio_url: z.string().url(),
   order_index: z.number().int().min(0)
 });
 export default Lesson;
