@@ -258,39 +258,3 @@ export const likePost = async (req: Request<{ id: string }>, res: Response) => {
   }
 };
 
-/*
-// ================================ LIKE POST(PATCH) ==============================
-
-
-
-export const likePost = async (req: Request<{ id: string }>, res: Response) => {
-  try {
-    // ensure id is string
-    //const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const id = req.params.id;
-
-    const post = await Post.findByPk(id);
-    if (!post)
-      return res
-        .status(404)
-        .json({ success: false, message: "Post not found" });
-
-    // increment likes
-    post.likes += 1;
-    await post.save();
-
-    return res.status(200).json({
-      success: true,
-      data: {
-        title: post.title,
-        likes: post.likes,
-      },
-    });
-  } catch (error: any) {
-    console.error("LIKE POST ERROR:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
-  }
-};
-*/

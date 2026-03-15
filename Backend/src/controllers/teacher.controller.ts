@@ -15,6 +15,7 @@ interface AuthRequest extends Request {
   user?: { id: string; role: string };
 }
 
+
 //POST NEW TEACHER
 export const createTeacher = async (req: AuthRequest, res: Response) => {
   try {

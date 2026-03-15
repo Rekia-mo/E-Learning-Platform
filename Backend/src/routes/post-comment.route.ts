@@ -28,29 +28,14 @@ router.post("/:post_id", authenticateToken, createComment);
 // ================= PUT =================
 
 // modifier commentaire
-router.put(
-  "/:id",
-  authenticateToken,
-  authorize(["Student", "Teacher"]),
-  updateComment,
-);
+router.put("/:id", authenticateToken, authorize(["Student", "Teacher"]), updateComment);
 
 // ================= DELETE =================
 
 // supprimer commentaire
-router.delete(
-  "/:id",
-  authenticateToken,
-  authorize(["Student", "Teacher"]),
-  deleteComment,
-);
+router.delete("/:id", authenticateToken, authorize(["Student", "Teacher"]), deleteComment);
 
 // supprimer commentaire (Admin)
-router.delete(
-  "/:id/admin",
-  authenticateToken,
-  authorize(["Admin"]),
-  deleteCommentByAdmin,
-);
+router.delete("/:id/admin", authenticateToken, authorize(["Admin"]), deleteCommentByAdmin);
 
 export default router;
