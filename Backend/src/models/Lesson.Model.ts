@@ -1,5 +1,6 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/db";
+import { z } from "zod";
 
 // 1️⃣ Interface des attributs du model
 interface LessonAttributes {
@@ -67,4 +68,10 @@ Lesson.init(
   }
 );
 
+export const createLessonSchema = z.object({
+  title: z.string().min(3),
+  description: z.string().optional(),
+  vedio_url: z.string().url(),
+  order_index: z.number().int().min(0)
+});
 export default Lesson;

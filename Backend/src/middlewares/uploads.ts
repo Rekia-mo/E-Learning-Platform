@@ -7,16 +7,20 @@ const storage = multer.diskStorage({
 
     if (file.fieldname === "cv_URL") {
       cb(null, "uploads/cvs");
-    } 
-    
+    }
+
     else if (file.fieldname === "image_url") {
       cb(null, "uploads/thumbnails");
-    } 
-    
+    }
+
     else if (file.fieldname === "document") {
       cb(null, "uploads/documents");
-    } 
-    
+    }
+
+    else if (file.fieldname === "vedio_url") {
+      cb(null, "uploads/videos");
+    }
+
     else {
       cb(new Error("Invalid file field"), "");
     }
@@ -32,5 +36,5 @@ const storage = multer.diskStorage({
 
 export const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }
+  limits: { fileSize: 200 * 1024 * 1024 } // 200MB
 });
