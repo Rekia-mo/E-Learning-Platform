@@ -124,16 +124,28 @@ export const getLessonsBylessonId = async (req: Request<{ id: string }>, res: Re
       include: [
         {
           model: Course,
-        }]
+        }
+      ]
     });
 
     if (!lesson) {
       return res.status(404).json({ message: "Lesson not found" });
     }
 
+    const baseURL = `${req.protocol}://${req.get("host")}`;
+
+    const lessonData = lesson.toJSON();
+
+    const lessonWithUrl = {
+      ...lessonData,
+      vedio_url: lessonData.vedio_url
+        ? `${baseURL}/${lessonData.vedio_url.replace(/\\/g, "/")}`
+        : null
+    };
+
     res.json({
       success: true,
-      lesson
+      lesson: lessonWithUrl
     });
 
   } catch (err: any) {
