@@ -2,3 +2,7 @@ node_modules/
 dist/
 .env
 uploads/videos/
+uploads/
+uploads/cvs/
+uploads/documents/
+uploads/thumbnails/
