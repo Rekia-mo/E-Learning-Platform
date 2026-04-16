@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
-import { Course, Teacher, Category } from "../models/index";
+import { Course, Teacher, Category, User, Enrollment, Lesson } from "../models/index";
 import { is } from "zod/v4/locales";
+import { Sequelize } from "sequelize";
 
 interface CourseAttributes {
   id: string;
@@ -11,6 +12,27 @@ interface CourseAttributes {
   isSpecialized: boolean;
   teacher_id: string;
   categorie_id: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+
+  // counts
+  lessonsCount?: number;
+  enrollmentsCount?: number;
+
+  // associations
+  teacher?: {
+    id: string;
+    user_id: string;
+    status: string;
+    cvUrl?: string | null;
+    user?: {
+      name: string;
+    };
+  };
+
+  category?: {
+    name: string;
+  };
 }
 
 interface AuthRequest extends Request {
@@ -114,35 +136,48 @@ export const getMyCourses = async (req: AuthRequest, res: Response) => {
 //GET ALL COURSES
 export const getCourses = async (req: Request, res: Response) => {
   try {
-
     const { teacher_id, categorie_id, isSpecialized } = req.query;
 
     let filter: any = {};
 
-    if (teacher_id) {
-      filter.teacher_id = teacher_id;
-    }
-
-    if (categorie_id) {
-      filter.categorie_id = categorie_id;
-    }
-
-    if (isSpecialized !== undefined) {
-      filter.isSpecialized = isSpecialized === "true";
-    }
+    if (teacher_id) filter.teacher_id = teacher_id;
+    if (categorie_id) filter.categorie_id = categorie_id;
+    if (isSpecialized !== undefined) filter.isSpecialized = isSpecialized === "true";
 
     const courses = await Course.findAll({
       where: filter,
       include: [
         {
-          model: Teacher
+          model: Teacher,
+          include: [
+            {
+              model: User,
+              attributes: ["name"]
+            }
+          ]
         },
         {
           model: Category,
           attributes: ["name"]
+        },
+        {
+          model: Lesson,
+          attributes: []  // we don't need lesson data, just the count
+        },
+        {
+          model: Enrollment,
+          attributes: []  // same, just the count
         }
-      ]
+      ],
+      attributes: {
+        include: [
+          [Sequelize.fn("COUNT", Sequelize.col("lessons.id")), "lessonsCount"],
+          [Sequelize.fn("COUNT", Sequelize.col("enrollments.id")), "enrollmentsCount"]  // adjust col name to match your model
+        ]
+      },
+      group: ["course.id"] 
     });
+
     const baseURL = `${req.protocol}://${req.get("host")}`;
 
     const courseWithUrls = courses.map(course => ({
@@ -167,10 +202,16 @@ export const getCourseById = async (req: Request<{ id: string }>, res: Response)
   try {
     if (!req.params.id) return res.status(400).json({ message: "No course ID provided" });
 
-    const course = await Course.findByPk(req.params.id, {
+        const course = await Course.findByPk(req.params.id, {
       include: [
         {
-          model: Teacher
+          model: Teacher,
+          include: [
+            {
+              model: User,
+              attributes: ["name"] 
+            }
+          ]
         },
         {
           model: Category,
