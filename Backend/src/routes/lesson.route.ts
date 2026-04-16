@@ -9,7 +9,7 @@ import { createLessonSchema } from "../models/Lesson.Model";
 
 
 //CREATE LESSON (TEACHER)
-router.post("/:id/lessons", authenticateToken, upload.single("vedio_url"), authorize(["Teacher"]),  createLesson);
+router.post("/:id/lessons", authenticateToken, upload.single("vedio_url"), validate(createLessonSchema), authorize(["Teacher"]),  createLesson);
 
 //GET ALL LESSONS OF A COURSE 
 router.get("/:id/lessons",authenticateToken, getLessonsByCourse);
