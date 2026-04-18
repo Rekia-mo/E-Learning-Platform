@@ -10,6 +10,7 @@ import courseRoutes from "../routes/course.route";
 import lessonRoutes from "../routes/lesson.route";
 import courseCommentRoutes from "../routes/course-comment.route";
 import savedCourseRoutes from "../routes/saved-course.route";
+import enrollmentRoutes from "../routes/enrollment.route";
 import { errorHandler } from "../middlewares/ErrorHandling";
 
 export function setupRoutes(app: express.Application) {
@@ -27,5 +28,6 @@ export function setupRoutes(app: express.Application) {
   app.use("/api/courses", lessonRoutes)
   app.use("/api/course-comments", courseCommentRoutes);
   app.use("/api/saved-courses", savedCourseRoutes);
+  app.use("/api/enrollments", enrollmentRoutes);
   app.use(errorHandler);
 }
