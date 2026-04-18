@@ -1,7 +1,9 @@
-
 # contentbased.py
 # Professional Content-Based Recommender
-# Weighted (title > category > description) + User-based extension
+# this content-based recommender uses a simple ML technique (TF-IDF) for text representation, but it does not learn from user behavior over time. So it’s partly machine learning (for text similarity) but not an adaptive, learning-from-data system.
+# Uses course titles, categories, and descriptions
+# Weights title more, category medium, description less(manually set weights)
+#The system primarily recommends courses to users based on their enrollments. Additionally, a course-based recommendation function is implemented for extensibility (so there is 2 functions: recommend(course_id) and recommend_for_user(user_id)).
 
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer

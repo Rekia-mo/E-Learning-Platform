@@ -1,7 +1,7 @@
 # utils.py
 # use this to activate the virtual environment: .\venv\Scripts\activate from backend folder
 # use this to run the FastAPI app: uvicorn AI-service.main:app --reload 
-# use this to execute  the test  : python -m courses.test_content
+# use this to execute  the test  : python -m courses.test_content fromAI-service
 import os
 import pandas as pd
 from sqlalchemy import create_engine

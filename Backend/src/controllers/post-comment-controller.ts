@@ -103,10 +103,19 @@ export const createComment = async (req: AuthRequest, res: Response) => {
       post_id,
     });
 
-    return res.status(201).json({
-      success: true,
-      data: comment,
-    });
+    
+
+   const user = await User.findByPk(user_id);
+
+  return res.status(201).json({
+  success: true,
+  data: {
+    ...comment.toJSON(),
+    User: {
+      name: user?.name,
+    },
+  },
+});
   } catch (err: any) {
     console.log(err);
     return res.status(500).json({ err: err.message });
@@ -145,10 +154,20 @@ export const updateComment = async (req: AuthRequest, res: Response) => {
       comment: body.comment ?? comment.comment,
     });
 
-    return res.status(200).json({
-      success: true,
-      data: comment,
-    });
+        const updatedComment = await PostComment.findOne({
+        where: { id: comment.id },
+        include: [
+          {
+            model: User,
+            attributes: ["name"],
+          },
+        ],
+      });
+
+      return res.status(200).json({
+        success: true,
+        data: updatedComment,
+      });
   } catch (err: any) {
     console.log(err);
     return res.status(500).json({ err: err.message });

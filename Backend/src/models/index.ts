@@ -9,6 +9,7 @@ import PostComment from "./Post_Comment.Model";
 import Saved_Course from "./Saved_Course.Model";
 import Enrollment from "./Enrollment.Model";
 import Lesson from "./Lesson.Model";
+import PostLike from "./Post_Like.Model";
 
 // 🔗 Associations
 
@@ -76,6 +77,15 @@ Enrollment.belongsTo(User, { foreignKey: "user_id" });
 Course.hasMany(Enrollment, { foreignKey: "course_id" });
 Enrollment.belongsTo(Course, { foreignKey: "course_id" });
 
+
+// User - PostLike (1 → N)
+User.hasMany(PostLike, { foreignKey: "user_id" });
+PostLike.belongsTo(User, { foreignKey: "user_id" });
+
+// Post - PostLike (1 → N)
+Post.hasMany(PostLike, { foreignKey: "post_id" });
+PostLike.belongsTo(Post, { foreignKey: "post_id" });
+
 export {
   User,
   Role,
@@ -85,6 +95,7 @@ export {
   Post,
   CourseComment,
   PostComment,
+  PostLike,
   Saved_Course,
   Enrollment,
   Lesson,
