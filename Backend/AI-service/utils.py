@@ -1,6 +1,7 @@
 # utils.py
+# This file contains utility functions for database interactions and data fetching.
 # use this to activate the virtual environment: .\venv\Scripts\activate from backend folder
-# use this to run the FastAPI app: uvicorn AI-service.main:app --reload 
+# use this to run the FastAPI app: uvicorn main:app --reload  from AI-service folder
 # use this to execute  the test  : python -m courses.test_content fromAI-service
 import os
 import pandas as pd
@@ -35,6 +36,17 @@ def get_courses_df():
     df = pd.read_sql(query, engine)
     return df
 
+
+def get_enrollments_df():
+    """
+    Fetch all enrollments from the database.
+    Returns user_id and course_id — exactly what the recommender needs.
+    """
+    query = """
+    SELECT user_id, course_id
+    FROM Enrollment;
+    """
+    return pd.read_sql(query, engine)
 
 
 
