@@ -171,17 +171,18 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
     }
 
     const { name } = req.body;
-    if (!name) {
-      return res.status(400).json({ message: "No name provided" });
-    }
+    const isSick = req.body.isSick;
+
+      // if (!name) {
+      //   return res.status(400).json({ message: "No name provided" });
+      // }
 
     //update the user's name
-    user = await user.update({ name: name });
+    user = await user.update({ name: name, isSick: isSick });
 
     res.json({
-      user,
       success: true,
-      message: "User role updated successfully"
+      message: "User updated successfully"
     });
 
   } catch (err: any) {

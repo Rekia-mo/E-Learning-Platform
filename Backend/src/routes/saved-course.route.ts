@@ -13,7 +13,6 @@ const router = express.Router();
 router.get(
   "/me",
   authenticateToken,
-  authorize(["Student", "Admin"]),
   getMySavedCourses,
 );
 
@@ -21,7 +20,6 @@ router.get(
 router.post(
   "/:course_id",
   authenticateToken,
-  authorize(["Student"]),
   createSavedCourse,
 );
 
@@ -29,7 +27,6 @@ router.post(
 router.delete(
   "/:course_id",
   authenticateToken,
-  authorize(["Student"]),
   deleteSavedCourse,
 );
 

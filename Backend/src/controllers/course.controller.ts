@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { Course, Teacher, Category, User, Enrollment, Lesson } from "../models/index";
-import { is } from "zod/v4/locales";
-import { Sequelize } from "sequelize";
+import { Course, Teacher, Category, User, Enrollment, Lesson, Saved_Course } from "../models/index";
+// import { is } from "zod/v4/locales";
+import { Op, Sequelize } from "sequelize";
 
 interface CourseAttributes {
   id: string;
@@ -136,13 +136,14 @@ export const getMyCourses = async (req: AuthRequest, res: Response) => {
 //GET ALL COURSES
 export const getCourses = async (req: Request, res: Response) => {
   try {
-    const { teacher_id, categorie_id, isSpecialized } = req.query;
+    const { teacher_id, categorie_id, isSpecialized, search } = req.query;
 
     let filter: any = {};
 
     if (teacher_id) filter.teacher_id = teacher_id;
     if (categorie_id) filter.categorie_id = categorie_id;
     if (isSpecialized !== undefined) filter.isSpecialized = isSpecialized === "true";
+    if (search) filter.title = { [Op.like]: `%${search}%` };
 
     const courses = await Course.findAll({
       where: filter,
@@ -171,11 +172,20 @@ export const getCourses = async (req: Request, res: Response) => {
       ],
       attributes: {
         include: [
-          [Sequelize.fn("COUNT", Sequelize.col("lessons.id")), "lessonsCount"],
-          [Sequelize.fn("COUNT", Sequelize.col("enrollments.id")), "enrollmentsCount"]  // adjust col name to match your model
+          [
+            Sequelize.literal(`(
+              SELECT COUNT(*) FROM Lesson WHERE Lesson.course_id = Course.id
+            )`),
+            "lessonsCount"
+          ],
+          [
+            Sequelize.literal(`(
+              SELECT COUNT(*) FROM Enrollment WHERE Enrollment.course_id = Course.id
+            )`),
+            "enrollmentsCount"
+          ]
         ]
-      },
-      group: ["course.id"] 
+      }
     });
 
     const baseURL = `${req.protocol}://${req.get("host")}`;
@@ -198,27 +208,31 @@ export const getCourses = async (req: Request, res: Response) => {
 };
 
 //GET COURCE BY ID
-export const getCourseById = async (req: Request<{ id: string }>, res: Response) => {
+export const getCourseById = async (req: AuthRequest, res: Response) => {
   try {
+    const courseId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     if (!req.params.id) return res.status(400).json({ message: "No course ID provided" });
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
 
-        const course = await Course.findByPk(req.params.id, {
-      include: [
-        {
-          model: Teacher,
-          include: [
-            {
-              model: User,
-              attributes: ["name"] 
-            }
-          ]
-        },
-        {
-          model: Category,
-          attributes: ["name"]
-        }
-      ]
-    });
+    const user_id = req.user.id;
+
+    const [isEnrolled, isSaved, enrollmentCount, course] = await Promise.all([
+      Enrollment.findOne({ where: { user_id, course_id: courseId } }),
+      Saved_Course.findOne({ where: { user_id, course_id: courseId } }),
+      Enrollment.count({ where: { course_id: courseId } }),
+      Course.findByPk(courseId, {
+        include: [
+          {
+            model: Teacher,
+            include: [{ model: User, attributes: ["name"] }]
+          },
+          {
+            model: Category,
+            attributes: ["name"]
+          }
+        ]
+      })
+    ]);
 
     if (!course) return res.status(404).json({ message: "course not found" });
 
@@ -232,13 +246,16 @@ export const getCourseById = async (req: Request<{ id: string }>, res: Response)
 
     res.json({
       success: true,
-      courses: courseWithUrls
+      courses: courseWithUrls,
+      isEnrolled: !!isEnrolled,
+      isSaved: !!isSaved,
+      enrollmentCount
     });
   } catch (err: any) {
     console.log(err);
     return res.status(500).json({ err: err.message });
   }
-}
+};
 
 //UPDATE COURSE (TEACHER)
 export const updateCourse = async (req: AuthRequest, res: Response) => {
@@ -272,7 +289,9 @@ export const updateCourse = async (req: AuthRequest, res: Response) => {
       return res.status(403).json({ message: "You cannot update this course" });
     }
 
-    const { title, description, isSpecialized, image_url, categorie_id } = req.body;
+    const { title, description, isSpecialized, categorie_id } = req.body;
+
+    const image_url = req.file ? req.file.path : course.image_url;
 
     await course.update({
       ...(title && { title }),
