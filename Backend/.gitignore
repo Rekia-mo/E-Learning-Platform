@@ -6,4 +6,6 @@ uploads/
 uploads/cvs/
 uploads/documents/
 uploads/thumbnails/
-.venv/
+__pycache__/
+*.pyc
+venv/

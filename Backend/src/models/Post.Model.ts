@@ -9,6 +9,7 @@ interface PostAttributes {
   content: string;
   likes: number;
   isSpecialized: boolean;
+  
 }
 
 // 2️⃣ Interface des attributs optionnels à la création

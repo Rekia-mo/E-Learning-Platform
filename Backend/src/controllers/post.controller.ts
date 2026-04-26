@@ -1,6 +1,6 @@
 // post.controller.ts
 import { Request, Response } from "express";
-import { Post, User } from "../models/index";
+import { Post, User,PostLike,PostComment } from "../models/index";
 import { z, ZodError } from "zod";
 
 // Interface pour récupérer les infos de l'utilisateur depuis le token
@@ -62,17 +62,42 @@ export const getPosts = async (req: AuthRequest, res: Response) => {
     // ✅ Filtrage selon isSick
     posts = posts.filter((post) => post.User?.isSick === currentUser.isSick);
 
-    // ✅ Retourner toutes les données 
+    // ======= CHECK IF USER LIKED POSTS =========
+    const postsWithLikes = await Promise.all(
+      posts.map(async (post) => {
+        const like = await PostLike.findOne({
+          where: {
+            post_id: post.id,
+            user_id: user_id,
+          },
+        });
+
+        return {
+
+          ...post.toJSON(),
+          isLikedByCurrentUser: !!like,
+          commentsCount: await PostComment.count({
+          where: { post_id: post.id },
+      }), // true if user already liked the post
+
+
+        };
+      })
+    );
+
+    // ========= RETURN ALL POSTS ========
     return res.status(200).json({
       success: true,
-      count: posts.length, // nombre total de posts
-      data: posts, // toutes les données
+      count: postsWithLikes.length, // nombre total de posts
+      data: postsWithLikes, // toutes les données
     });
+
   } catch (err: any) {
     console.log(err);
     return res.status(500).json({ err: err.message });
   }
 };
+
 // ================================ GET MY POSTS =============================
 // Récupérer uniquement les posts de l'utilisateur connecté
 export const getMyPosts = async (req: AuthRequest, res: Response) => {
@@ -234,27 +259,30 @@ export const deletePostByAdmin = async (req: AuthRequest, res: Response) => {
 // ================================ LIKE POST(PATCH) ==============================
 export const likePost = async (req: Request<{ id: string }>, res: Response) => {
   try {
-    // Récupérer l'id du post
-    const id = req.params.id;
+    const post_id = req.params.id;
+    const user_id = (req as any).user.id; // depuis ton middleware JWT
 
-    const post = await Post.findByPk(id);
+    const post = await Post.findByPk(post_id);
     if (!post)
-      return res
-        .status(404)
-        .json({ success: false, message: "Post not found" });
+      return res.status(404).json({ success: false, message: "Post not found" });
 
-    // Incrémenter le nombre de likes
-    post.likes += 1;
+    // Vérifier si l'user a déjà liké
+    const existingLike = await PostLike.findOne({ where: { post_id, user_id } });
+
+    if (existingLike) {
+      // Déjà liké → unlike
+      await existingLike.destroy();
+      post.likes -= 1;
+    } else {
+      // Pas encore liké → like
+      await PostLike.create({ post_id, user_id });
+      post.likes += 1;
+    }
+
     await post.save();
 
-    // Retourner toutes les données du post
-    return res.status(200).json({
-      success: true,
-      data: post,
-    });
+    return res.status(200).json({ success: true, data: post });
   } catch (err: any) {
-    console.log(err);
     return res.status(500).json({ err: err.message });
   }
 };
-
