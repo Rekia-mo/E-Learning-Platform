@@ -29,7 +29,10 @@ router.get('/my-courses', authenticateToken, authorize(['Teacher']), getMyCourse
 router.get('/:id', authenticateToken, getCourseById);
 
 //update course (TEACHER)
-router.put('/:id', authenticateToken, authorize(['Teacher']), updateCourse);
+router.put('/:id', authenticateToken, authorize(['Teacher']),  upload.fields([
+    { name: "image_url", maxCount: 1 },
+    { name: "document", maxCount: 1 }
+  ]), updateCourse);
 
 //pach like 
 router.patch('/:id/like', authenticateToken, likeCourse);
