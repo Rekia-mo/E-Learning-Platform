@@ -1,6 +1,4 @@
 
-
-
  # main.py
 
 from fastapi import FastAPI
@@ -10,6 +8,7 @@ app = FastAPI()
 
 app.include_router(courses_router)
 
+# Route principale (home)
 @app.get("/")
 def home():
     return {"msg": "Hello world"}

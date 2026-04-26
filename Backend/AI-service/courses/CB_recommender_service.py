@@ -1,5 +1,5 @@
-# courses/recommender_service.py
-from utils import get_courses_df, get_enrollments_df
+# CB_recommender_service.py
+from utils import get_courses_df, get_enrollments_df, get_categories_df, get_teachers_df
 from courses.contentbased import CourseRecommender
 
 # Singleton: built once when the app starts
@@ -13,8 +13,10 @@ def get_recommender() -> CourseRecommender:
     if _recommender is None:
         courses_df = get_courses_df()
         _enrollments_df = get_enrollments_df()
+        categories_df = get_categories_df()
+        teachers_df = get_teachers_df()
 
-        _recommender = CourseRecommender(courses_df)
+        _recommender = CourseRecommender(courses_df, categories_df, teachers_df)
         _recommender.preprocess()
         _recommender.build_model()
 
@@ -22,5 +24,5 @@ def get_recommender() -> CourseRecommender:
 
 
 def get_enrollments():
-    get_recommender()  # ensure it's initialised
+    get_recommender()
     return _enrollments_df

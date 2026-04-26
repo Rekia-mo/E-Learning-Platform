@@ -1,14 +1,19 @@
-# utils.py
-# This file contains utility functions for database interactions and data fetching.
-# use this to activate the virtual environment: .\venv\Scripts\activate from backend folder
-# use this to run the FastAPI app: uvicorn main:app --reload  from AI-service folder
-# use this to execute  the test  : python -m courses.test_content fromAI-service
-import os
-import pandas as pd
-from sqlalchemy import create_engine
-from dotenv import load_dotenv
+#utils.py
+#ce fichier :#se connecter à la base de données
+             #récupérer des données (cours, inscriptions=enrollments)
+             #les transformer en format exploitable (DataFrame)
 
-# Load .env file (make sure your .env is in the root of your repo)
+# use this to activate the virtual environment: .\venv\Scripts\activate from backend folder
+# use this to run the FastAPI :   uvicorn main:app --reload  from AI-service folder
+# Get-ChildItem -Recurse -Filter __pycache__ | Remove-Item -Recurse -Force     from AI-service folder
+
+
+import os                            #pour lire les variables d’environnements
+import pandas as pd                  #pour manipuler les données (DataFrame)
+from sqlalchemy import create_engine #pour créer la connexion à la base de données
+from dotenv import load_dotenv       #pour charger les variables du fichier .env
+
+# Load .env file to get DB credentials
 load_dotenv()
 
 # Read DB credentials from environment variables
@@ -18,23 +23,23 @@ DB_HOST = os.getenv("DB_HOST")
 DB_NAME = os.getenv("DB_NAME")
 DB_DIALECT = os.getenv("DB_DIALECT", "mysql")  # default to mysql
 
-# Create SQLAlchemy engine
+# Create SQLAlchemy engine to connect to the database
 engine = create_engine(f"{DB_DIALECT}+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}")
 
 
-# Utility function to fetch courses from the database
+# Utility functions to fetch courses  , enrollements, categories, and teachers from the database
 def get_courses_df():
     """
     Fetch all courses from the database as a Pandas DataFrame.
-    Returns id, title, description, and category name (instead of categorie_id).
+    Returns id, title, description, categorie_id, teacher_id, and category name.
     """
     query = """
-    SELECT c.id, c.title, c.description, cat.name AS category_name
+    SELECT c.id, c.title, c.description, c.categorie_id, c.teacher_id, cat.name AS category_name
     FROM Course c
     JOIN Categorie cat ON c.categorie_id = cat.id;
     """
-    df = pd.read_sql(query, engine)
-    return df
+    return pd.read_sql(query, engine)
+
 
 
 def get_enrollments_df():
@@ -50,12 +55,22 @@ def get_enrollments_df():
 
 
 
+def get_categories_df():
+    query = """
+    SELECT id, name
+    FROM Categorie;
+    """
+    return pd.read_sql(query, engine)
 
 
 
-
-
-
+def get_teachers_df():
+    query = """
+    SELECT t.id, u.name
+    FROM Teacher t
+    JOIN User u ON t.user_id = u.id;
+    """
+    return pd.read_sql(query, engine)
 
 
 
