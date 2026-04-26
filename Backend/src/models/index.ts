@@ -9,7 +9,7 @@ import PostComment from "./Post_Comment.Model";
 import Saved_Course from "./Saved_Course.Model";
 import Enrollment from "./Enrollment.Model";
 import Lesson from "./Lesson.Model";
-
+import Quize from "./Quize.Model";
 // 🔗 Associations
 
 // Role - User (1 → N)
@@ -76,6 +76,11 @@ Enrollment.belongsTo(User, { foreignKey: "user_id" });
 Course.hasMany(Enrollment, { foreignKey: "course_id" });
 Enrollment.belongsTo(Course, { foreignKey: "course_id" });
 
+// Quize - Course (1 → N)
+Course.hasMany(Quize, { foreignKey: "course_id" });
+Quize.belongsTo(Course, { foreignKey: "course_id" });
+
+
 export {
   User,
   Role,
@@ -88,4 +93,5 @@ export {
   Saved_Course,
   Enrollment,
   Lesson,
+  Quize
 };
