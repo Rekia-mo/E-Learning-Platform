@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
-import { Saved_Course, Course, User } from "../models/index";
+import { Saved_Course, Course, User, Teacher } from "../models/index";
 import { z } from "zod";
+import Categorie from "../models/Categorie.Model";
 
 // Interface pour récupérer les infos de l'utilisateur depuis le token
 interface AuthRequest extends Request {
@@ -26,6 +27,21 @@ export const getMySavedCourses = async (req: AuthRequest, res: Response) => {
         {
           model: Course,
           attributes: ["id", "title", "description", "image_url"],
+          include: [
+            {
+              model: Categorie,
+              attributes: ["name"]
+            },
+            {
+              model: Teacher,
+              include: [
+                {
+                  model: User,
+                  attributes: ["name"]
+                }
+              ]
+            }
+          ]
         },
       ],
       order: [["createdAt", "DESC"]],

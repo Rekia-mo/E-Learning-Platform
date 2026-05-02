@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import { Enrollment, Course } from "../models/index";
+import { Enrollment, Course, Teacher, User } from "../models/index";
+import Categorie from "../models/Categorie.Model";
 
 interface AuthRequest extends Request {
   user?: { id: string; role: string };
@@ -22,6 +23,21 @@ export const getMyEnrollments = async (req: AuthRequest, res: Response) => {
         {
           model: Course,
           attributes: ["id", "title", "description", "image_url"],
+          include: [
+            {
+              model: Categorie,
+              attributes: ["name"]
+            },
+            {
+              model: Teacher,
+              include: [
+                {
+                  model: User,
+                  attributes: ["name"]
+                }
+              ]
+            }
+          ]
         },
       ],
       order: [["createdAt", "DESC"]],

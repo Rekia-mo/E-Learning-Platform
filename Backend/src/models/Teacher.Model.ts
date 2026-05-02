@@ -74,11 +74,11 @@ Teacher.init(
 
 export const teacherSchema = z.object({
 
-  isPsychologist: z.boolean().default(false),
+  isPsychologist: z
+    .union([z.boolean(), z.string()])
+    .transform((val) => val === true || val === "true"),
 
-  cv_URL: z.url("Must be a valid URL").nullable().optional(),
-
-  descreption: z.string().max(2000).nullable().optional(),
+  descreption: z.string().min(1, "Description is required"),
 
   status: z.enum(["pending", "approved", "rejected"]).default("pending")
 }).strict();

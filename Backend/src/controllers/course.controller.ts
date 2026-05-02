@@ -105,13 +105,26 @@ export const getMyCourses = async (req: AuthRequest, res: Response) => {
       where: { teacher_id: teacher.id },
       include: [
         {
-          model: Teacher
+          model: Teacher,
         },
         {
           model: Category,
-          attributes: ["name"]
-        }
-      ]
+          attributes: ["name"],
+        },
+        {
+          model: Enrollment,        // ← add this
+          attributes: [],           // we don't need enrollment fields
+        },
+      ],
+      attributes: {
+        include: [
+          [
+            Sequelize.fn("COUNT", Sequelize.col("Enrollments.id")),  // ← count enrollments
+            "students",
+          ],
+        ],
+      },
+      group: ["Course.id", "Teacher.id", "Categorie.id"],  // ← required with COUNT
     });
 
     const baseURL = `${req.protocol}://${req.get("host")}`;

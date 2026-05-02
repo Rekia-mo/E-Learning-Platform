@@ -11,6 +11,7 @@ interface createTeacherBody {
   descreption?: string | null;
 }
 
+
 interface AuthRequest extends Request {
   user?: { id: string; role: string };
 }
@@ -218,3 +219,30 @@ export const updateTeacherStatus = async (req: Request<{ id: string }>, res: Res
   }
 }
 
+//get my teacher profile (for logged in user) (TEACHER)
+export const getMyTeacherProfile = async (req: AuthRequest, res: Response) => {
+  try {
+      console.log("req.user:", req.user); // ← add this
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+ 
+    const teacher = await Teacher.findOne({
+      where: { user_id: req.user.id },
+    });
+
+    if (!teacher) return res.status(404).json({ success: true, teacher: null });
+    // ↑ 404 with null instead of error — so frontend knows "no profile yet"
+
+    const baseURL = `${req.protocol}://${req.get("host")}`;
+
+    const teacherWithUrl = {
+      ...teacher.toJSON(),
+      cv_URL: teacher.cv_URL ? `${baseURL}/${teacher.cv_URL.replace(/\\/g, "/")}` : null,
+    };
+
+    res.json({ success: true, teacher: teacherWithUrl });
+
+  } catch (err: any) {
+    console.log(err);
+    return res.status(500).json({ err: err.message });
+  }
+};

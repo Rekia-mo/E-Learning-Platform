@@ -59,11 +59,10 @@ export const generateQuiz = async (req: Request<{ id: string }>, res: Response) 
     ]);
 
     const text = result.response.text();
-    // "```json\n[{...}]\n```"  ← Gemini wraps it in markdown
 
     // parse the JSON
     const clean = text.replace(/```json|```/g, "").trim();
-    // removes the markdown → "[{...}]"
+
 
     const questions = JSON.parse(clean);
     // turns string into actual JS array → [{...}, {...}]

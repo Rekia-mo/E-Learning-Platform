@@ -5,6 +5,7 @@ import {
   getTeacherById,
   deleteTeacher,
   updateTeacherStatus,
+  getMyTeacherProfile,
 } from "../controllers/teacher.controller";
 import { teacherSchema } from "../models/Teacher.Model";
 import { authenticateToken } from "../middlewares/auth.middleware";
@@ -21,6 +22,9 @@ router.post("/", authenticateToken, upload.single("cv_URL"), validate(teacherSch
 //get all teachers (ADMIN ONLY)
 router.get("/", authenticateToken, authorize(["Admin"]), getAllTeachers);
 
+//get my teacher profile (TEACHER ONLY)
+router.get("/me", authenticateToken, authorize(["Teacher"]), getMyTeacherProfile);
+
 //GET TEACHER BY ID (ADMIN ONLY)
 router.get("/:id", authenticateToken, authorize(["Admin"]), getTeacherById);
 
@@ -30,4 +34,5 @@ router.delete("/:id", authenticateToken, authorize(["Admin"]), deleteTeacher);
 //UPDATE TEACHER STATUS (ADMIN ONLY)
 router.patch( "/:id/status",authenticateToken,authorize(["Admin"]), updateTeacherStatus,);
  
+
 export default router;
