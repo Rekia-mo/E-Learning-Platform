@@ -1,5 +1,5 @@
 import express from "express";
-import { createUser, getUsers, deleteUser, updateUserRole, updateUser, getUserProfile } from "../controllers/user.controller";
+import { createUser, getUsers, deleteUser, updateUserRole, updateUser, getUserProfile, verifyEmail } from "../controllers/user.controller";
 import { validate } from "../middlewares/validate";
 import { createUserSchema } from "../models/User.Model";
 import { authenticateToken } from "../middlewares/auth.middleware";
@@ -9,6 +9,8 @@ import { authorize } from "../middlewares/role.middelware";
 const router = express.Router();
 //register
 router.post("/register", validate(createUserSchema), createUser);
+router.get("/verify-email", verifyEmail); 
+
 //get all users (admin only)
 router.get("/", authenticateToken, authorize(["Admin"]), getUsers);
 //delete user by id (admin only)

@@ -1,6 +1,8 @@
 import { Role, User } from "../models/index";
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
+import { sendVerificationEmail } from "../services/email.service";
 
 
 interface createUserBody {
@@ -21,48 +23,103 @@ export const createUser = async (
 ) => {
   try {
     const existingUser = await User.findOne({
-      where: {
-        email: req.body.email,
-      },
+      where: { email: req.body.email },
     });
-    //VEREFY EXISTNS OF USER
+
     if (existingUser)
       return res.status(400).json({ message: "User already exists" });
 
-    //HACH PASSWORD
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
-    //SET DEFAULT ROLE AS STUDENT
-    const defaultRole = await Role.findOne({
-      where: {
-        name: "Student",
-      },
-    });
+    const defaultRole = await Role.findOne({ where: { name: "Student" } });
     if (!defaultRole)
       return res.status(500).json({ message: "Default role not configured" });
 
-    //CREAT USER
-    const user = await User.create({
+    // GENERATE VERIFICATION TOKEN
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+
+    // CREATE USER — no JWT yet, account is locked
+    await User.create({
       name: req.body.name,
       email: req.body.email,
       password: hashedPassword,
       isSick: req.body.isSick,
       role_id: defaultRole.id,
+      emailVerified: false,
+      emailVerificationToken: verificationToken,
+      emailVerificationExpires: verificationExpires,
     });
 
-    //GENERAT TOKEN
-    const token = user.generateAuthToken(defaultRole?.name);
+    // SEND EMAIL WITH LINK
+    await sendVerificationEmail(req.body.email, verificationToken);
 
-    res.json({
+    // NO TOKEN RETURNED HERE
+    return res.status(201).json({
       success: true,
-      token: token,
+      message: "Account created. Please check your email to activate your account.",
     });
+
   } catch (err: any) {
     console.log(err);
     return res.status(500).json({ err: err.message });
   }
 };
+
+//email verification
+export const verifyEmail = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.query;
+
+    if (!token)
+      return res.status(400).json({ message: "Token is missing" });
+
+    // FIND USER BY TOKEN
+    const user = await User.findOne({
+      where: { emailVerificationToken: token as string },
+    });
+
+    if (!user)
+      return res.status(400).json({ message: "Invalid link" });
+
+    // CHECK IF TOKEN EXPIRED
+    if (user.emailVerificationExpires! < new Date())
+      return res.status(400).json({ message: "Link expired, please sign up again" });
+
+    // FIND ROLE FOR JWT
+    const role = await Role.findOne({ where: { id: user.role_id } });
+    if (!role)
+      return res.status(500).json({ message: "Role not found" });
+
+    // UNLOCK ACCOUNT + DELETE TOKEN
+    await user.update({
+      emailVerified: true,
+      emailVerificationToken: null,
+      emailVerificationExpires: null,
+    });
+
+    // GENERATE JWT HERE — this is the moment the user gets access
+    const jwtToken = user.generateAuthToken(role.name);
+
+    return res.status(200).json({
+      success: true,
+      message: "Email verified!",
+      token: jwtToken,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: role.name,
+      },
+    });
+
+  } catch (err: any) {
+    console.log(err);
+    return res.status(500).json({ err: err.message });
+  }
+};
+
 
 //GET ALL USERS ADMIN
 export const getUsers = async (req: Request, res: Response) => {
