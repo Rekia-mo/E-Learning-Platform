@@ -18,7 +18,8 @@ import { errorHandler } from "../middlewares/ErrorHandling";
 
 export function setupRoutes(app: express.Application) {
   app.use(cors());
-  app.use(express.json());
+  app.use(express.json({ limit: "500mb" }));
+  app.use(express.urlencoded({ limit: "500mb", extended: true }));
 
   app.use("/uploads", express.static("uploads"));
   app.use("/api/auth", authRoutes);
