@@ -17,9 +17,19 @@ import { errorHandler } from "../middlewares/ErrorHandling";
 
 
 export function setupRoutes(app: express.Application) {
-  app.use(cors());
-  app.use(express.json({ limit: "500mb" }));
+  app.use(cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }));
+  app.use((req, res, next) => {
+    if (req.headers["content-type"]?.startsWith("multipart/form-data")) {
+      return next(); // skip JSON parser, let multer handle it
+    }
+    express.json({ limit: "500mb" })(req, res, next);
+  });
   app.use(express.urlencoded({ limit: "500mb", extended: true }));
+
 
   app.use("/uploads", express.static("uploads"));
   app.use("/api/auth", authRoutes);
