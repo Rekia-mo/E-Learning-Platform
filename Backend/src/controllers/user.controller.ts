@@ -22,6 +22,8 @@ export const createUser = async (
   res: Response,
 ) => {
   try {
+    console.log("EMAIL_USER:", process.env.EMAIL_USER);
+console.log("EMAIL_PASS:", process.env.EMAIL_PASS);
     const existingUser = await User.findOne({
       where: { email: req.body.email },
     });
