@@ -29,7 +29,7 @@ export const createLesson = async (req: AuthRequest, res: Response) => {
     if (!req.file) {
       return res.status(400).json({ message: "Video is required" });
     }
-    const vedio_url = req.file.path ;
+    const vedio_url = req.file.path;
 
     // find teacher linked to this user
     const teacher = await Teacher.findOne({
@@ -77,6 +77,11 @@ export const createLesson = async (req: AuthRequest, res: Response) => {
 export const getLessonsByCourse = async (req: Request<{ id: string }>, res: Response) => {
   try {
 
+    const toUrl = (path: string | null | undefined) => {
+      if (!path) return null;
+      if (path.startsWith("http")) return path;
+      return `${baseURL}/${path.replace(/\\/g, "/")}`;
+    };
     const course_id = req.params.id;
 
     if (!course_id) {
@@ -97,12 +102,12 @@ export const getLessonsByCourse = async (req: Request<{ id: string }>, res: Resp
       return res.status(404).json({ message: "No lessons found for this course" });
     }
 
-     // Add base URL to cv_URL to make it accessible  
+    // Add base URL to cv_URL to make it accessible  
     const baseURL = `${req.protocol}://${req.get("host")}`;
 
     const lessonsWithVideos = lessons.map(lesson => ({
       ...lesson.toJSON(),
-      vedio_url: lesson.vedio_url ? `${baseURL}/${lesson.vedio_url.replace(/\\/g, "/")}` : null
+      vedio_url: toUrl(lesson.vedio_url)
     }));
 
     res.json({
@@ -121,11 +126,7 @@ export const getLessonsBylessonId = async (req: Request<{ id: string }>, res: Re
     const lesson_id = req.params.id;
 
     const lesson = await Lesson.findByPk(lesson_id, {
-      include: [
-        {
-          model: Course,
-        }
-      ]
+      include: [{ model: Course }]
     });
 
     if (!lesson) {
@@ -134,13 +135,17 @@ export const getLessonsBylessonId = async (req: Request<{ id: string }>, res: Re
 
     const baseURL = `${req.protocol}://${req.get("host")}`;
 
+    const toUrl = (path: string | null | undefined) => {
+      if (!path) return null;
+      if (path.startsWith("http")) return path; // ← YouTube or external, return as is
+      return `${baseURL}/${path.replace(/\\/g, "/")}`; // ← local file, prepend server URL
+    };
+
     const lessonData = lesson.toJSON();
 
     const lessonWithUrl = {
       ...lessonData,
-      vedio_url: lessonData.vedio_url
-        ? `${baseURL}/${lessonData.vedio_url.replace(/\\/g, "/")}`
-        : null
+      vedio_url: toUrl(lessonData.vedio_url)
     };
 
     res.json({

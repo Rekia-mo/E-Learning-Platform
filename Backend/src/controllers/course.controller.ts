@@ -129,10 +129,16 @@ export const getMyCourses = async (req: AuthRequest, res: Response) => {
 
     const baseURL = `${req.protocol}://${req.get("host")}`;
 
+    const toUrl = (path: string | null | undefined) => {
+      if (!path) return null;
+      if (path.startsWith("http")) return path; // ← external URL, return as is
+      return `${baseURL}/${path.replace(/\\/g, "/")}`;  // ← local file, prepend server URL
+    };
+
     const courseWithUrls = courses.map(course => ({
       ...course.toJSON(),
-      image_url: course.image_url ? `${baseURL}/${course.image_url.replace(/\\/g, "/")}` : null,
-      document: course.document ? `${baseURL}/${course.document.replace(/\\/g, "/")}` : null
+      image_url: toUrl(course.image_url),
+      document: toUrl(course.document),
     }));
 
     res.json({
@@ -203,10 +209,16 @@ export const getCourses = async (req: Request, res: Response) => {
 
     const baseURL = `${req.protocol}://${req.get("host")}`;
 
+    const toUrl = (path: string | null | undefined) => {
+      if (!path) return null;
+      if (path.startsWith("http")) return path; // ← external URL, return as is
+      return `${baseURL}/${path.replace(/\\/g, "/")}`;  // ← local file, prepend server URL
+    };
+
     const courseWithUrls = courses.map(course => ({
       ...course.toJSON(),
-      image_url: course.image_url ? `${baseURL}/${course.image_url.replace(/\\/g, "/")}` : null,
-      document: course.document ? `${baseURL}/${course.document.replace(/\\/g, "/")}` : null
+      image_url: toUrl(course.image_url),
+      document: toUrl(course.document),
     }));
 
     res.json({
@@ -251,12 +263,18 @@ export const getCourseById = async (req: AuthRequest, res: Response) => {
 
     const baseURL = `${req.protocol}://${req.get("host")}`;
 
-    const courseWithUrls = {
-      ...course.toJSON(),
-      image_url: course.image_url ? `${baseURL}/${course.image_url.replace(/\\/g, "/")}` : null,
-      document: course.document ? `${baseURL}/${course.document.replace(/\\/g, "/")}` : null
+    const toUrl = (path: string | null | undefined) => {
+      if (!path) return null;
+      if (path.startsWith("http")) return path; // ← external URL, return as is
+      return `${baseURL}/${path.replace(/\\/g, "/")}`;  // ← local file, prepend server URL
     };
 
+    const courseWithUrls = {
+      ...course.toJSON(),
+      image_url: toUrl(course.image_url),
+      document: toUrl(course.document),
+    };
+    
     res.json({
       success: true,
       courses: courseWithUrls,
