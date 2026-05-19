@@ -5,13 +5,16 @@ import { validate } from "../middlewares/validate";
 import{ createCourse, deleteCourse, getCourses, updateCourse, getMyCourses, likeCourse, deleteCourseByAdmin, getCourseById } from "../controllers/course.controller"; 
 import { CreateCourseSchema } from "../models/Course.Model";
 import { upload } from "../middlewares/uploads";
+// routes/course.routes.ts
+import { checkPsychologist } from "../middlewares/checkPsychologist";
 const router = express.Router();
 
 //CREAT NEW COURSE (TEACHER)
 router.post('/', authenticateToken, authorize(['Teacher']), upload.fields([
     { name: "image_url", maxCount: 1 },
     { name: "document", maxCount: 1 }
-  ]), validate(CreateCourseSchema),createCourse);
+  ]),checkPsychologist, validate(CreateCourseSchema),createCourse);
+
 
 //DELETE COURSE (TEACHER)
 router.delete('/:id', authenticateToken, authorize(['Teacher']), deleteCourse);
