@@ -38,7 +38,12 @@ interface CourseAttributes {
 interface AuthRequest extends Request {
   user?: { id: string; role: string };
 }
-
+// add this at the top of your courses controller file, after the imports
+const toAbsoluteUrl = (path: string | null | undefined, baseURL: string) => {
+  if (!path) return null;
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return `${baseURL}/${path.replace(/\\/g, "/")}`;
+};
 //CREAT NEW COURSE (TEACHER)
 export const createCourse = async (req: AuthRequest, res: Response) => {
   try {
@@ -131,8 +136,8 @@ export const getMyCourses = async (req: AuthRequest, res: Response) => {
 
     const courseWithUrls = courses.map(course => ({
       ...course.toJSON(),
-      image_url: course.image_url ? `${baseURL}/${course.image_url.replace(/\\/g, "/")}` : null,
-      document: course.document ? `${baseURL}/${course.document.replace(/\\/g, "/")}` : null
+      image_url: toAbsoluteUrl(course.image_url, baseURL),
+      document: toAbsoluteUrl(course.document, baseURL),
     }));
 
     res.json({
@@ -205,8 +210,8 @@ export const getCourses = async (req: Request, res: Response) => {
 
     const courseWithUrls = courses.map(course => ({
       ...course.toJSON(),
-      image_url: course.image_url ? `${baseURL}/${course.image_url.replace(/\\/g, "/")}` : null,
-      document: course.document ? `${baseURL}/${course.document.replace(/\\/g, "/")}` : null
+      image_url: toAbsoluteUrl(course.image_url, baseURL),
+      document: toAbsoluteUrl(course.document, baseURL)
     }));
 
     res.json({
@@ -253,8 +258,8 @@ export const getCourseById = async (req: AuthRequest, res: Response) => {
 
     const courseWithUrls = {
       ...course.toJSON(),
-      image_url: course.image_url ? `${baseURL}/${course.image_url.replace(/\\/g, "/")}` : null,
-      document: course.document ? `${baseURL}/${course.document.replace(/\\/g, "/")}` : null
+      image_url: toAbsoluteUrl(course.image_url, baseURL),
+      document: toAbsoluteUrl(course.document, baseURL)
     };
 
     res.json({

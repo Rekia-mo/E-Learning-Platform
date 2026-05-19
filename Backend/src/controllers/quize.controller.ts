@@ -100,3 +100,20 @@ export const getQuizByCourse = async (req: Request<{ id: string }>, res: Respons
     return res.status(500).json({ err: err.message });
   }
 };
+
+// PUT /api/quiz/:questionId
+export const updateQuestion = async (req: Request<{ questionId: string }>, res: Response) => {
+  try {
+    const { questionId } = req.params;
+    const { question, option_a, option_b, option_c, option_d, correct_answer } = req.body;
+
+    const q = await Quize.findByPk(questionId);
+    if (!q) return res.status(404).json({ success: false, message: "Question not found" });
+
+    await q.update({ question, option_a, option_b, option_c, option_d, correct_answer });
+
+    return res.json({ success: true, data: q });
+  } catch (err: any) {
+    return res.status(500).json({ err: err.message });
+  }
+};
