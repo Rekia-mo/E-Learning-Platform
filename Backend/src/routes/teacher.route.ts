@@ -6,6 +6,7 @@ import {
   deleteTeacher,
   updateTeacherStatus,
   getMyTeacherProfile,
+  getPendingTeachers,
 } from "../controllers/teacher.controller";
 import { teacherSchema } from "../models/Teacher.Model";
 import { authenticateToken } from "../middlewares/auth.middleware";
@@ -34,5 +35,6 @@ router.delete("/:id", authenticateToken, authorize(["Admin"]), deleteTeacher);
 //UPDATE TEACHER STATUS (ADMIN ONLY)
 router.patch( "/:id/status",authenticateToken,authorize(["Admin"]), updateTeacherStatus,);
  
+router.get("/pending", authenticateToken, authorize(["Admin"]), getPendingTeachers);
 
 export default router;

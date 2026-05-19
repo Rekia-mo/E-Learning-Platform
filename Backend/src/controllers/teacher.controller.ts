@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Teacher, User, Role } from "../models/index";
+import { sendTeacherStatusEmail } from "../services/email.service";
 
 
 interface createTeacherBody {
@@ -203,9 +204,13 @@ export const updateTeacherStatus = async (req: Request<{ id: string }>, res: Res
       );
 
     }
+    
 
     //UPDATE STATUS
     await teacher.update({ status });
+
+    const user = await User.findByPk(teacher.user_id);
+    if (user) await sendTeacherStatusEmail(user.email, user.name, status);
 
     res.json({
       success: true,
@@ -219,12 +224,26 @@ export const updateTeacherStatus = async (req: Request<{ id: string }>, res: Res
   }
 }
 
+//GET PENDING TEACHERS (ADMIN)
+export const getPendingTeachers = async (req: Request, res: Response) => {
+  try {
+    const teachers = await Teacher.findAll({
+      where: { status: "pending" },
+      include: [{ model: User, attributes: ["id", "name", "email"] }],
+    });
+
+    return res.status(200).json({ success: true, teachers });
+  } catch (err: any) {
+    return res.status(500).json({ err: err.message });
+  }
+};
+
 //get my teacher profile (for logged in user) (TEACHER)
 export const getMyTeacherProfile = async (req: AuthRequest, res: Response) => {
   try {
-      console.log("req.user:", req.user); // ← add this
+    console.log("req.user:", req.user); // ← add this
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
- 
+
     const teacher = await Teacher.findOne({
       where: { user_id: req.user.id },
     });
