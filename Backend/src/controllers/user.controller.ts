@@ -23,7 +23,7 @@ export const createUser = async (
 ) => {
   try {
     console.log("EMAIL_USER:", process.env.EMAIL_USER);
-console.log("EMAIL_PASS:", process.env.EMAIL_PASS);
+    console.log("EMAIL_PASS:", process.env.EMAIL_PASS);
     const existingUser = await User.findOne({
       where: { email: req.body.email },
     });
@@ -232,9 +232,9 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
     const { name } = req.body;
     const isSick = req.body.isSick;
 
-      // if (!name) {
-      //   return res.status(400).json({ message: "No name provided" });
-      // }
+    // if (!name) {
+    //   return res.status(400).json({ message: "No name provided" });
+    // }
 
     //update the user's name
     user = await user.update({ name: name, isSick: isSick });
