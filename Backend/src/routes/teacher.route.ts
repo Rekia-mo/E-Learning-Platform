@@ -7,6 +7,7 @@ import {
   updateTeacherStatus,
   getMyTeacherProfile,
   getPendingTeachers,
+  getPublicTeacherProfile,
 } from "../controllers/teacher.controller";
 import { teacherSchema } from "../models/Teacher.Model";
 import { authenticateToken } from "../middlewares/auth.middleware";
@@ -37,4 +38,6 @@ router.patch( "/:id/status",authenticateToken,authorize(["Admin"]), updateTeache
  
 router.get("/pending", authenticateToken, authorize(["Admin"]), getPendingTeachers);
 
+// PUBLIC — any logged in user can view
+router.get("/public/:id", authenticateToken, getPublicTeacherProfile);
 export default router;

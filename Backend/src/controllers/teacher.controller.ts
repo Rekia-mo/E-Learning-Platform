@@ -17,6 +17,25 @@ interface AuthRequest extends Request {
   user?: { id: string; role: string };
 }
 
+// GET PUBLIC TEACHER PROFILE (for students)
+export const getPublicTeacherProfile = async (req: Request<{ id: string }>, res: Response) => {
+  try {
+    const teacher = await Teacher.findByPk(req.params.id, {
+      include: [
+        {
+          model: User,
+          attributes: ["id", "name", "email"],
+        },
+      ],
+    });
+
+    if (!teacher) return res.status(404).json({ message: "Teacher not found" });
+
+    res.json({ success: true, teacher });
+  } catch (err: any) {
+    return res.status(500).json({ err: err.message });
+  }
+};
 
 //POST NEW TEACHER
 export const createTeacher = async (req: AuthRequest, res: Response) => {
